@@ -1,0 +1,19 @@
+# Agent stuff
+.claude/
+.rtk/
+# IDE
+.idea/
+# Credentials
+credentials/
+# Local document storage
+storage/
+# Really env file
+.env
+# Cache & Logs
+.venv/
+node_modules/
+__pycache__/
+*.pyc
+.next/
+*.egg-info/
+logs/
