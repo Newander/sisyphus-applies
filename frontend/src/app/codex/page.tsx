@@ -13,16 +13,16 @@ export default async function CodexPage() {
         <header className="flex flex-col gap-4 rounded-lg border-l-4 border-primary bg-muted p-5">
           <AppNav active="codex" />
           <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-muted-foreground">Локальная интеграция</p>
+            <p className="text-sm font-medium text-muted-foreground">Local integration</p>
             <h1 className="text-3xl font-semibold tracking-normal">Codex bridge</h1>
           </div>
         </header>
 
         <Card>
           <CardHeader>
-            <CardTitle>Вопрос к Codex CLI</CardTitle>
+            <CardTitle>Ask Codex CLI</CardTitle>
             <CardDescription>
-              Backend запускает локальный Codex CLI из корня проекта и возвращает stdout.
+              The backend launches the local Codex CLI from the project root and returns stdout.
             </CardDescription>
           </CardHeader>
           <CardContent>

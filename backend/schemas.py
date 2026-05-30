@@ -274,37 +274,6 @@ class ApplicationScrapePreview(BaseModel):
     warnings: list[str] = Field(default_factory=list)
 
 
-class GmailStatus(BaseModel):
-    connected: bool
-    email_address: str | None = None
-    last_sync_at: datetime | None = None
-    messages_count: int = 0
-    token_file_exists: bool = False
-    client_secret_file_exists: bool = False
-    sync_query: str
-
-
-class GmailMessageRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    gmail_id: str
-    thread_id: str
-    sender: str | None = None
-    recipients: str | None = None
-    subject: str | None = None
-    snippet: str | None = None
-    internal_date: datetime | None = None
-    received_at: datetime | None = None
-
-
-class GmailSyncResult(BaseModel):
-    imported_count: int
-    updated_count: int
-    scanned_count: int
-    email_address: str
-
-
 class PromptRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

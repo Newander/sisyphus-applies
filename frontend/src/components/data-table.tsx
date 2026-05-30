@@ -100,7 +100,7 @@ export function DataTable<T>({
   columns,
   data,
   rowKey,
-  actionsHeader = "Действия",
+  actionsHeader = "Actions",
   emptyMessage,
   initialPageSize = 10,
   initialSort,
@@ -228,7 +228,7 @@ export function DataTable<T>({
           {isLoading ? (
             <TableRow>
               <TableCell colSpan={columns.length + (renderActions ? 1 : 0)}>
-                <p className="py-8 text-center text-sm text-muted-foreground">Загрузка...</p>
+                <p className="py-8 text-center text-sm text-muted-foreground">Loading...</p>
               </TableCell>
             </TableRow>
           ) : (
@@ -252,12 +252,12 @@ export function DataTable<T>({
 
       <div className="flex flex-col gap-3 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
         <div>
-          Показано {total === 0 ? 0 : currentPageIndex * pageSize + 1}-
-          {Math.min((currentPageIndex + 1) * pageSize, total)} из {total}
+          Showing {total === 0 ? 0 : currentPageIndex * pageSize + 1}-
+          {Math.min((currentPageIndex + 1) * pageSize, total)} of {total}
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <label className="flex items-center gap-2">
-            Строк
+            Rows
             <select
               className="h-9 rounded-md border bg-background px-2 text-sm"
               value={pageSize}
@@ -271,7 +271,7 @@ export function DataTable<T>({
             </select>
           </label>
           <span>
-            Страница {currentPageIndex + 1} из {totalPages}
+            Page {currentPageIndex + 1} of {totalPages}
           </span>
           <div className="flex gap-2">
             <Button
@@ -282,7 +282,7 @@ export function DataTable<T>({
               onClick={() => setPageIndex((current) => Math.max(0, current - 1))}
             >
               <ChevronLeft data-icon="inline-start" />
-              Назад
+              Back
             </Button>
             <Button
               disabled={currentPageIndex >= totalPages - 1}
@@ -291,7 +291,7 @@ export function DataTable<T>({
               variant="outline"
               onClick={() => setPageIndex((current) => Math.min(totalPages - 1, current + 1))}
             >
-              Вперёд
+              Next
               <ChevronRight data-icon="inline-end" />
             </Button>
           </div>

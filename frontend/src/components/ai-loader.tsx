@@ -38,7 +38,7 @@ export function AiLoader({ isLoading, timeoutSeconds = 120 }: AiLoaderProps) {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
             <span className="relative inline-flex h-3 w-3 rounded-full bg-primary" />
           </span>
-          <p className="text-base font-semibold">Ждём Codex...</p>
+          <p className="text-base font-semibold">Waiting for Codex...</p>
         </div>
 
         <div className="flex flex-col gap-1">
@@ -49,8 +49,8 @@ export function AiLoader({ isLoading, timeoutSeconds = 120 }: AiLoaderProps) {
             />
           </div>
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>+{elapsed}с</span>
-            <span>осталось ~{remaining}с</span>
+            <span>+{elapsed}s</span>
+            <span>~{remaining}s remaining</span>
           </div>
         </div>
       </div>

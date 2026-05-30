@@ -77,7 +77,7 @@ export function FeatureMemoryButton() {
     setError(null);
 
     if (!featureText) {
-      setError("Опиши фичу перед отправкой.");
+      setError("Describe the feature before submitting.");
       return;
     }
 
@@ -97,7 +97,7 @@ export function FeatureMemoryButton() {
       setIsOpen(false);
     } catch (submitError) {
       const message = submitError instanceof Error ? submitError.message : "Unknown error";
-      setError(`Не удалось сохранить фичу: ${message}`);
+      setError(`Failed to save feature: ${message}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -110,13 +110,13 @@ export function FeatureMemoryButton() {
     >
       <Button
         aria-expanded={isOpen}
-        aria-label="Запомнить фичу"
+        aria-label="Save feature"
         className="shadow-lg"
         type="button"
         onClick={() => setIsOpen(true)}
       >
         <BookmarkPlus data-icon="inline-start" />
-        Запомнить
+        Remember
       </Button>
 
       {isOpen ? (
@@ -126,10 +126,10 @@ export function FeatureMemoryButton() {
         >
           <div className="mb-3 flex items-start justify-between gap-3">
             <label className="text-sm font-semibold" htmlFor="feature-memory-text">
-              Какую фичу вы бы хотели запомнить?
+              What feature would you like to save?
             </label>
             <Button
-              aria-label="Закрыть форму"
+              aria-label="Close form"
               size="sm"
               type="button"
               variant="ghost"
@@ -151,11 +151,11 @@ export function FeatureMemoryButton() {
 
           <div className="mt-4 flex justify-end gap-2">
             <Button disabled={isSubmitting} type="button" variant="outline" onClick={closeForm}>
-              Закрыть
+              Close
             </Button>
             <Button disabled={isSubmitting} type="submit">
               <Send data-icon="inline-start" />
-              {isSubmitting ? "Сохранение..." : "Выслать"}
+              {isSubmitting ? "Saving..." : "Submit"}
             </Button>
           </div>
         </form>

@@ -24,7 +24,7 @@ export function SearchableSelect({
   value,
   onChange,
   onSearchChange,
-  placeholder = "Выбрать...",
+  placeholder = "Select...",
   disabled = false,
   className,
 }: SearchableSelectProps) {
@@ -100,7 +100,7 @@ export function SearchableSelect({
           <input
             ref={inputRef}
             className="h-full w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-            placeholder="Поиск..."
+            placeholder="Search..."
             value={search}
             disabled={disabled}
             onChange={(e) => handleSearchChange(e.target.value)}
@@ -141,7 +141,7 @@ export function SearchableSelect({
         <div className="absolute z-50 mt-1 w-full rounded-md border bg-popover text-popover-foreground shadow-md">
           <ul className="max-h-52 overflow-y-auto py-1">
             {filteredOptions.length === 0 ? (
-              <li className="px-3 py-2 text-sm text-muted-foreground">Ничего не найдено</li>
+              <li className="px-3 py-2 text-sm text-muted-foreground">Nothing found</li>
             ) : (
               filteredOptions.map((opt) => (
                 <li

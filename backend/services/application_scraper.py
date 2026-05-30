@@ -153,7 +153,7 @@ def scrape_rendered_text_sync(url: str, settings: Settings) -> tuple[str, list[s
                 page.wait_for_load_state("networkidle", timeout=5_000)
             except Exception:
                 warnings.append(
-                    "Страница не дождалась полной сетевой тишины, текст взят после DOM-загрузки."
+                    "Page did not reach full network idle, text taken after DOM load."
                 )
 
             data = page.evaluate(
@@ -202,7 +202,7 @@ def scrape_rendered_text_sync(url: str, settings: Settings) -> tuple[str, list[s
 
     if len(raw_text) > MAX_RAW_TEXT_CHARS:
         raw_text = raw_text[:MAX_RAW_TEXT_CHARS]
-        warnings.append("Текст описания был обрезан перед анализом.")
+        warnings.append("Description text was truncated before analysis.")
 
     return raw_text, warnings
 
@@ -313,12 +313,12 @@ async def build_preview_from_text(
     raw_source: str = "url",
 ) -> ApplicationScrapePreview:
     if not raw_text:
-        warnings.append("Не удалось извлечь видимый текст со страницы.")
+        warnings.append("Failed to extract visible text from the page.")
 
     dictionary_tags = extract_tags_with_dictionary(raw_text)
     extracted = await extract_with_codex(raw_text, settings)
     if extracted is None:
-        warnings.append("Codex-извлечение не выполнено: CLI недоступен или вернул невалидный JSON.")
+        warnings.append("Codex extraction failed: CLI unavailable or returned invalid JSON.")
         inferred_title = infer_title(raw_text)
         extracted = JobPostExtraction(
             company_name=infer_company_from_title(inferred_title),
@@ -369,7 +369,7 @@ async def scrape_application_text_preview(
     raw_text = text.strip()
     if len(raw_text) > MAX_RAW_TEXT_CHARS:
         raw_text = raw_text[:MAX_RAW_TEXT_CHARS]
-        warnings.append("Текст описания был обрезан перед анализом.")
+        warnings.append("Description text was truncated before analysis.")
 
     return await build_preview_from_text(
         raw_text=raw_text,

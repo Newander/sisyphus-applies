@@ -1,7 +1,7 @@
 import { applicationStageLabels, type ApplicationStage } from "@/lib/application-stages";
 
 export function formatDate(value: string) {
-  return new Intl.DateTimeFormat("ru", {
+  return new Intl.DateTimeFormat("en", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -31,10 +31,10 @@ export function formatStatus(status: string) {
 
 export function formatDocumentType(type: string) {
   const labels: Record<string, string> = {
-    cover_letter: "Сопроводительное письмо",
+    cover_letter: "Cover Letter",
     cv: "CV",
-    other: "Другое",
-    portfolio: "Портфолио",
+    other: "Other",
+    portfolio: "Portfolio",
   };
 
   return labels[type] ?? type;

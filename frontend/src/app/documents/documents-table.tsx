@@ -24,7 +24,7 @@ export function DocumentsTable({ documents: initialDocuments, total }: Documents
     () => [
       {
         id: "name",
-        header: "Документ",
+        header: "Document",
         accessor: "name",
         cell: (document) => (
           <Link
@@ -39,7 +39,7 @@ export function DocumentsTable({ documents: initialDocuments, total }: Documents
       },
       {
         id: "document_type",
-        header: "Тип",
+        header: "Type",
         accessor: "document_type",
         cell: (document) => (
           <Badge variant="outline">{formatDocumentType(document.document_type)}</Badge>
@@ -47,21 +47,21 @@ export function DocumentsTable({ documents: initialDocuments, total }: Documents
       },
       {
         id: "company_name",
-        header: "Компания",
+        header: "Company",
         sortValue: (document) => document.company_name ?? "",
         className: "text-muted-foreground",
-        cell: (document) => document.company_name ?? "Не привязан",
+        cell: (document) => document.company_name ?? "Not linked",
       },
       {
         id: "size_bytes",
-        header: "Размер",
+        header: "Size",
         accessor: "size_bytes",
         className: "text-muted-foreground",
         cell: (document) => formatFileSize(document.size_bytes),
       },
       {
         id: "modified_at",
-        header: "Изменен",
+        header: "Modified",
         accessor: "modified_at",
         headerClassName: "text-right",
         className: "text-right text-muted-foreground",
@@ -89,7 +89,7 @@ export function DocumentsTable({ documents: initialDocuments, total }: Documents
   }, []);
 
   async function removeDocument(document: DocumentItem) {
-    if (!window.confirm(`Удалить документ ${document.name}?`)) {
+    if (!window.confirm(`Delete document ${document.name}?`)) {
       return;
     }
 
@@ -98,7 +98,7 @@ export function DocumentsTable({ documents: initialDocuments, total }: Documents
       setDocuments((current) => current.filter((item) => item.id !== document.id));
       setTotalDocuments((current) => Math.max(0, current - 1));
     } catch {
-      window.alert("Не удалось отправить файл в корзину.");
+      window.alert("Failed to send file to recycle bin.");
     }
   }
 
@@ -106,7 +106,7 @@ export function DocumentsTable({ documents: initialDocuments, total }: Documents
     <DataTable
       columns={columns}
       data={documents}
-      emptyMessage="В папке документов пока нет файлов PDF, DOC, DOCX, RTF, TXT или MD."
+      emptyMessage="No PDF, DOC, DOCX, RTF, TXT, or MD files in the documents folder yet."
       initialSort={{ columnId: "modified_at", direction: "desc" }}
       isLoading={isLoading}
       onQueryChange={loadDocuments}
@@ -114,9 +114,9 @@ export function DocumentsTable({ documents: initialDocuments, total }: Documents
       totalItems={totalDocuments}
       renderActions={(document) => (
         <Button
-          aria-label="Удалить"
+          aria-label="Delete"
           size="icon"
-          title="Удалить"
+          title="Delete"
           type="button"
           variant="destructive"
           onClick={() => void removeDocument(document)}

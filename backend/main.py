@@ -13,7 +13,6 @@ from backend.api.codex import router as codex_router
 from backend.api.companies import router as companies_router
 from backend.api.documents import router as documents_router
 from backend.api.feature_memories import router as feature_memories_router
-from backend.api.gmail import router as gmail_router
 from backend.api.prompts import router as prompts_router
 from backend.config import Settings, get_settings
 from backend.db import get_session
@@ -33,7 +32,6 @@ app.include_router(application_sources_router)
 app.include_router(applications_router)
 app.include_router(documents_router)
 app.include_router(feature_memories_router)
-app.include_router(gmail_router)
 app.include_router(codex_router)
 app.include_router(prompts_router)
 

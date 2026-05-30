@@ -34,7 +34,7 @@ export default async function DocumentPage({ params }: DocumentPageProps) {
         <header className="flex flex-col gap-4 rounded-lg border-l-4 border-primary bg-muted p-5">
           <AppNav active="documents" />
           <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-muted-foreground">Карточка документа</p>
+            <p className="text-sm font-medium text-muted-foreground">Document details</p>
             <h1 className="break-all text-3xl font-semibold tracking-normal">{document.name}</h1>
           </div>
         </header>
@@ -52,21 +52,21 @@ export default async function DocumentPage({ params }: DocumentPageProps) {
           <CardContent>
             <dl className="grid gap-4 md:grid-cols-4">
               <div className="rounded-md border p-4">
-                <dt className="text-sm text-muted-foreground">Тип</dt>
+                <dt className="text-sm text-muted-foreground">Type</dt>
                 <dd className="mt-2">
                   <Badge variant="outline">{formatDocumentType(document.document_type)}</Badge>
                 </dd>
               </div>
               <div className="rounded-md border p-4">
-                <dt className="text-sm text-muted-foreground">Компания</dt>
-                <dd className="mt-2 font-medium">{document.company_name ?? "Не привязан"}</dd>
+                <dt className="text-sm text-muted-foreground">Company</dt>
+                <dd className="mt-2 font-medium">{document.company_name ?? "Not linked"}</dd>
               </div>
               <div className="rounded-md border p-4">
-                <dt className="text-sm text-muted-foreground">Размер</dt>
+                <dt className="text-sm text-muted-foreground">Size</dt>
                 <dd className="mt-2 font-medium">{formatFileSize(document.size_bytes)}</dd>
               </div>
               <div className="rounded-md border p-4">
-                <dt className="text-sm text-muted-foreground">Изменен</dt>
+                <dt className="text-sm text-muted-foreground">Modified</dt>
                 <dd className="mt-2 font-medium">{formatDate(document.modified_at)}</dd>
               </div>
             </dl>
@@ -74,7 +74,7 @@ export default async function DocumentPage({ params }: DocumentPageProps) {
             <div className="mt-6 flex flex-wrap gap-3">
               <Link className={buttonVariants({ variant: "outline", size: "sm" })} href="/documents">
                 <ArrowLeft data-icon="inline-start" />
-                Назад к документам
+                Back to documents
               </Link>
               <DeleteDocumentButton documentId={document.id} documentName={document.name} />
             </div>
@@ -83,8 +83,8 @@ export default async function DocumentPage({ params }: DocumentPageProps) {
 
         <Card>
           <CardHeader>
-            <CardTitle>Превью контента</CardTitle>
-            <CardDescription>Первые 50 строк файла. Поддерживаются TXT, MD, RTF и DOCX.</CardDescription>
+            <CardTitle>Content preview</CardTitle>
+            <CardDescription>First 50 lines of the file. TXT, MD, RTF, and DOCX are supported.</CardDescription>
           </CardHeader>
           <CardContent>
             {preview?.unsupported_reason ? (
@@ -107,7 +107,7 @@ export default async function DocumentPage({ params }: DocumentPageProps) {
                     ))}
                     {preview.truncated ? (
                       <span className="mt-2 block text-muted-foreground">
-                        ... показаны первые 50 строк
+                        ... first 50 lines shown
                       </span>
                     ) : null}
                   </code>
@@ -116,7 +116,7 @@ export default async function DocumentPage({ params }: DocumentPageProps) {
             ) : (
               <div className="flex min-h-32 items-center justify-center rounded-md border border-dashed p-6">
                 <p className="max-w-md text-center text-sm text-muted-foreground">
-                  Превью пустое или файл не удалось прочитать.
+                  Preview is empty or the file could not be read.
                 </p>
               </div>
             )}

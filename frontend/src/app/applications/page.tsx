@@ -14,12 +14,12 @@ import { formatDate, formatStatus } from "@/lib/format";
 import { formatSalaryRange } from "@/lib/salary";
 
 const DEFAULT_REJECTION_REASONS = [
-  "Не подошёл опыт",
-  "Не подошла зарплата",
-  "Не подошёл формат",
-  "Позиция закрыта",
-  "Нет ответа после интервью",
-  "Выбрал другой вариант",
+  "Experience did not match",
+  "Salary did not match",
+  "Format did not match",
+  "Position closed",
+  "No response after interview",
+  "Chose another option",
 ];
 
 export default function ApplicationsPage() {
@@ -42,7 +42,7 @@ export default function ApplicationsPage() {
     () => [
       {
         id: "applied_at",
-        header: "Дата",
+        header: "Date",
         accessor: "applied_at",
         className: "text-muted-foreground",
         sortValue: (application) => new Date(application.applied_at),
@@ -50,25 +50,25 @@ export default function ApplicationsPage() {
       },
       {
         id: "company_name",
-        header: "Компания",
+        header: "Company",
         accessor: "company_name",
         className: "font-medium",
       },
       {
         id: "application_source_name",
-        header: "Источник",
+        header: "Source",
         className: "text-muted-foreground",
         sortValue: (application) => application.application_source_name ?? "",
         cell: (application) => application.application_source_name ?? "-",
       },
       {
         id: "position_title",
-        header: "Позиция",
+        header: "Position",
         accessor: "position_title",
       },
       {
         id: "expected_salary_min_pln",
-        header: "Зарплата",
+        header: "Salary",
         className: "text-muted-foreground",
         sortValue: (application) => application.expected_salary_min_pln ?? 0,
         cell: (application) =>
@@ -79,7 +79,7 @@ export default function ApplicationsPage() {
       },
       {
         id: "status",
-        header: "Статус",
+        header: "Status",
         sortValue: (application) => formatStatus(application.status),
         cell: (application) => (
           <Badge variant="secondary">{formatStatus(application.status)}</Badge>
@@ -106,7 +106,7 @@ export default function ApplicationsPage() {
         setApplications(page.items);
         setTotalApplications(page.total);
       } catch {
-        setError("Не удалось загрузить историю откликов");
+        setError("Failed to load application history");
       } finally {
         setIsLoading(false);
       }
@@ -125,7 +125,7 @@ export default function ApplicationsPage() {
   );
 
   async function deleteApplication(application: Application) {
-    if (!window.confirm(`Удалить отклик ${application.position_title}?`)) {
+    if (!window.confirm(`Delete application for ${application.position_title}?`)) {
       return;
     }
 
@@ -135,7 +135,7 @@ export default function ApplicationsPage() {
 
     if (!response.ok) {
       const body = await response.json().catch(() => null);
-      setError(body?.detail ?? "Не удалось удалить отклик");
+      setError(body?.detail ?? "Failed to delete application");
       return;
     }
 
@@ -171,8 +171,8 @@ export default function ApplicationsPage() {
           <AppNav active="applications" />
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div className="flex flex-col gap-2">
-              <p className="text-sm font-medium text-muted-foreground">История подач</p>
-              <h1 className="text-3xl font-semibold tracking-normal">Отклики</h1>
+              <p className="text-sm font-medium text-muted-foreground">Submission history</p>
+              <h1 className="text-3xl font-semibold tracking-normal">Applications</h1>
             </div>
             <ApplicationDialog onCreated={reloadFirstPage} />
           </div>
@@ -188,10 +188,10 @@ export default function ApplicationsPage() {
           <CardHeader>
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
               <div className="flex flex-col gap-1">
-                <CardTitle>История откликов</CardTitle>
+                <CardTitle>Application history</CardTitle>
                 <CardDescription>
-                  {totalApplications} {includeClosed ? "откликов" : "незакрытых откликов"} в
-                  локальной базе.
+                  {totalApplications} {includeClosed ? "applications" : "open applications"} in
+                  the local database.
                 </CardDescription>
               </div>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -199,7 +199,7 @@ export default function ApplicationsPage() {
                   <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
                   <input
                     className="h-9 rounded-md border bg-background pl-8 pr-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                    placeholder="Поиск по позиции, компании..."
+                    placeholder="Search by position, company..."
                     type="search"
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
@@ -212,7 +212,7 @@ export default function ApplicationsPage() {
                     type="checkbox"
                     onChange={(event) => setIncludeClosed(event.target.checked)}
                   />
-                  Показывать закрытые
+                  Show closed
                 </label>
               </div>
             </div>
@@ -222,7 +222,7 @@ export default function ApplicationsPage() {
               key={`${includeClosed ? "with-closed" : "without-closed"}-${searchQuery}`}
               columns={columns}
               data={applications}
-              emptyMessage="Откликов пока нет."
+              emptyMessage="No applications yet."
               initialSort={{ columnId: "applied_at", direction: "desc" }}
               isLoading={isLoading}
               onQueryChange={loadApplications}
@@ -235,7 +235,7 @@ export default function ApplicationsPage() {
                     onSaved={reloadFirstPage}
                     triggerLabel={null}
                     triggerSize="icon"
-                    triggerTitle="Редактировать"
+                    triggerTitle="Edit"
                     triggerVariant="outline"
                   />
                   <RejectionDialog
@@ -244,8 +244,8 @@ export default function ApplicationsPage() {
                     onSaved={includeClosed ? updateApplication : reloadFirstPage}
                   />
                   <Button
-                    aria-label="Удалить"
-                    title="Удалить"
+                    aria-label="Delete"
+                    title="Delete"
                     type="button"
                     variant="destructive"
                     size="icon"
@@ -284,7 +284,7 @@ function RejectionDialog({ application, reasons, onSaved }: RejectionDialogProps
           [...reasons, ...localReasons]
             .map((reason) => reason.trim())
             .filter((reason) => reason.length > 0)
-            .sort((first, second) => first.localeCompare(second, "ru")),
+            .sort((first, second) => first.localeCompare(second, "en")),
         ),
       ),
     [localReasons, reasons],
@@ -300,7 +300,7 @@ function RejectionDialog({ application, reasons, onSaved }: RejectionDialogProps
   function addCustomReason() {
     const reason = customReason.trim();
     if (!reason) {
-      setError("Введи причину отказа");
+      setError("Enter a rejection reason");
       return;
     }
 
@@ -318,7 +318,7 @@ function RejectionDialog({ application, reasons, onSaved }: RejectionDialogProps
     event.preventDefault();
     const reason = selectedReason.trim();
     if (!reason) {
-      setError("Выбери или добавь причину отказа");
+      setError("Select or add a rejection reason");
       return;
     }
 
@@ -335,7 +335,7 @@ function RejectionDialog({ application, reasons, onSaved }: RejectionDialogProps
 
     if (!response.ok) {
       const body = await response.json().catch(() => null);
-      setError(body?.detail ?? "Не удалось сохранить причину отказа");
+      setError(body?.detail ?? "Failed to save rejection reason");
       return;
     }
 
@@ -346,8 +346,8 @@ function RejectionDialog({ application, reasons, onSaved }: RejectionDialogProps
   return (
     <>
       <Button
-        aria-label="Отказ"
-        title="Отказ"
+        aria-label="Reject"
+        title="Reject"
         type="button"
         variant="outline"
         size="icon"
@@ -367,7 +367,7 @@ function RejectionDialog({ application, reasons, onSaved }: RejectionDialogProps
             onSubmit={submitRejection}
           >
             <div className="flex flex-col gap-1">
-              <h2 className="text-lg font-semibold tracking-normal">Причина отказа</h2>
+              <h2 className="text-lg font-semibold tracking-normal">Rejection reason</h2>
               <p className="text-sm text-muted-foreground">{application.position_title}</p>
             </div>
 
@@ -378,13 +378,13 @@ function RejectionDialog({ application, reasons, onSaved }: RejectionDialogProps
             ) : null}
 
             <label className="flex flex-col gap-2 text-sm font-medium">
-              Причина
+              Reason
               <select
                 className="h-10 rounded-md border bg-background px-3 text-sm"
                 value={selectedReason}
                 onChange={(event) => setSelectedReason(event.target.value)}
               >
-                <option value="">Выбери причину</option>
+                <option value="">Select a reason</option>
                 {allReasons.map((reason) => (
                   <option key={reason} value={reason}>
                     {reason}
@@ -394,17 +394,17 @@ function RejectionDialog({ application, reasons, onSaved }: RejectionDialogProps
             </label>
 
             <label className="flex flex-col gap-2 text-sm font-medium">
-              Новое значение
+              New value
               <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
                 <input
                   className="h-10 rounded-md border bg-background px-3 text-sm"
-                  placeholder="Например: не подошёл стек"
+                  placeholder="E.g.: tech stack did not match"
                   value={customReason}
                   onChange={(event) => setCustomReason(event.target.value)}
                 />
                 <Button
-                  aria-label="Добавить причину"
-                  title="Добавить причину"
+                  aria-label="Add reason"
+                  title="Add reason"
                   type="button"
                   variant="outline"
                   onClick={addCustomReason}
@@ -416,10 +416,10 @@ function RejectionDialog({ application, reasons, onSaved }: RejectionDialogProps
 
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
-                Отменить
+                Cancel
               </Button>
               <Button disabled={isSubmitting}>
-                {isSubmitting ? "Сохранение..." : "Сохранить"}
+                {isSubmitting ? "Saving..." : "Save"}
               </Button>
             </div>
           </form>

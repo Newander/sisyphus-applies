@@ -9,4 +9,4 @@ if (-not (Test-Path $Python)) {
 }
 
 $env:PYTHONPATH = $Root
-& $Python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload
+& $Python -m uvicorn backend.main:app --host 127.0.0.1 --port 9002 --reload --reload-dir backend

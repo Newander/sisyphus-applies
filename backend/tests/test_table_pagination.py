@@ -96,7 +96,7 @@ def test_application_create_persists_seniority_as_field() -> None:
             position_title="Backend Engineer",
             status=ApplicationStatus.SENT_CV.value,
             seniority=SeniorityLevel.SENIOR_DEVELOPER,
-            notes="Заметки без уровня",
+            notes="Notes without seniority",
             applied_at=datetime(2026, 5, 1, tzinfo=UTC),
         ),
         session=session,
@@ -106,7 +106,7 @@ def test_application_create_persists_seniority_as_field() -> None:
     assert application is not None
     assert result.seniority == SeniorityLevel.SENIOR_DEVELOPER
     assert application.seniority == SeniorityLevel.SENIOR_DEVELOPER.value
-    assert application.notes == "Заметки без уровня"
+    assert application.notes == "Notes without seniority"
 
 
 def test_applications_page_excludes_rejected_by_default() -> None:
@@ -183,10 +183,10 @@ def test_application_rejection_reason_can_be_updated() -> None:
 
     result = update_application_rejection(
         application_id=application.id,
-        payload=ApplicationRejectionUpdate(rejection_reason="Позиция закрыта"),
+        payload=ApplicationRejectionUpdate(rejection_reason="Position closed"),
         session=session,
     )
 
-    assert result.rejection_reason == "Позиция закрыта"
+    assert result.rejection_reason == "Position closed"
     assert result.status == ApplicationStatus.REJECTED.value
     assert result.last_update_at is not None

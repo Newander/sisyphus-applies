@@ -15,13 +15,10 @@ class Settings(BaseSettings):
     postgres_port: int = 5432
 
     job_tracker_storage_dir: Path = Field(default=Path("storage/documents"))
-    google_client_secret_file: Path = Field(default=Path("credentials/client_secret.json"))
-    google_gmail_token_file: Path = Field(default=Path("credentials/gmail_token.json"))
-    gmail_initial_sync_query: str = "newer_than:180d"
 
     backend_host: str = "127.0.0.1"
-    backend_port: int = 8000
-    frontend_origin: str = "http://localhost:3000"
+    backend_port: int = 9002
+    frontend_origin: str = "http://localhost:9001"
     log_level: str = "INFO"
     scrape_timeout_ms: int = 20_000
     codex_cli_command: str = "codex"
@@ -63,14 +60,6 @@ class Settings(BaseSettings):
     @property
     def storage_dir(self) -> Path:
         return self.resolve_project_path(self.job_tracker_storage_dir)
-
-    @property
-    def google_client_secret_path(self) -> Path:
-        return self.resolve_project_path(self.google_client_secret_file)
-
-    @property
-    def google_gmail_token_path(self) -> Path:
-        return self.resolve_project_path(self.google_gmail_token_file)
 
     @property
     def codex_bridge_prompt_path(self) -> Path:

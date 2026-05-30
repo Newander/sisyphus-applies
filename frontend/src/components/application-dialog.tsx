@@ -74,9 +74,9 @@ type ApplicationForm = {
   raw_position_source: string;
 };
 
-const LOCATION_OPTIONS = ["Ремоут", "Варшава"] as const;
-const WORK_FORMAT_OPTIONS = ["Ремоут", "Гибрид", "Онсайт"] as const;
-const EMPLOYMENT_TYPE_OPTIONS = ["Фуллтайм", "Фриланс"] as const;
+const LOCATION_OPTIONS = ["Remote", "Warsaw"] as const;
+const WORK_FORMAT_OPTIONS = ["Remote", "Hybrid", "On-site"] as const;
+const EMPLOYMENT_TYPE_OPTIONS = ["Full-time", "Freelance"] as const;
 
 const emptyForm: ApplicationForm = {
   company_id: "",
@@ -87,10 +87,10 @@ const emptyForm: ApplicationForm = {
   source_name: "",
   position_title: "",
   position_description: "",
-  location: "Ремоут",
-  remote_policy: "Ремоут",
+  location: "Remote",
+  remote_policy: "Remote",
   seniority: "",
-  employment_type: "Фуллтайм",
+  employment_type: "Full-time",
   salary_currency: DEFAULT_SALARY_CURRENCY,
   salary_preset: "none",
   salary_min: "",
@@ -123,16 +123,16 @@ function toDateInput(value: string) {
 function buildNotes(form: ApplicationForm) {
   const sections = [
     form.position_description.trim()
-      ? `Описание позиции:\n${form.position_description.trim()}`
+      ? `Position description:\n${form.position_description.trim()}`
       : "",
     [
-      form.location.trim() ? `Локация: ${form.location.trim()}` : "",
-      form.remote_policy.trim() ? `Формат: ${form.remote_policy.trim()}` : "",
-      form.employment_type.trim() ? `Тип занятости: ${form.employment_type.trim()}` : "",
+      form.location.trim() ? `Location: ${form.location.trim()}` : "",
+      form.remote_policy.trim() ? `Work format: ${form.remote_policy.trim()}` : "",
+      form.employment_type.trim() ? `Employment type: ${form.employment_type.trim()}` : "",
     ]
       .filter(Boolean)
       .join("\n"),
-    form.notes.trim() ? `Заметки:\n${form.notes.trim()}` : "",
+    form.notes.trim() ? `Notes:\n${form.notes.trim()}` : "",
   ].filter(Boolean);
 
   return sections.length > 0 ? sections.join("\n\n") : null;
@@ -143,11 +143,11 @@ function normalizeLocation(value: string | null, fallback: string) {
   if (!normalized) {
     return fallback;
   }
-  if (normalized.includes("warsaw") || normalized.includes("варшав")) {
-    return "Варшава";
+  if (normalized.includes("warsaw") || normalized.includes("warsaw")) {
+    return "Warsaw";
   }
-  if (normalized.includes("remote") || normalized.includes("ремоут")) {
-    return "Ремоут";
+  if (normalized.includes("remote") || normalized.includes("remote")) {
+    return "Remote";
   }
   return fallback;
 }
@@ -157,18 +157,18 @@ function normalizeWorkFormat(value: string | null, fallback: string) {
   if (!normalized) {
     return fallback;
   }
-  if (normalized.includes("hybrid") || normalized.includes("гибрид")) {
-    return "Гибрид";
+  if (normalized.includes("hybrid") || normalized.includes("hybrid")) {
+    return "Hybrid";
   }
   if (
     normalized.includes("onsite") ||
     normalized.includes("on-site") ||
-    normalized.includes("офис")
+    normalized.includes("office")
   ) {
-    return "Онсайт";
+    return "On-site";
   }
-  if (normalized.includes("remote") || normalized.includes("ремоут")) {
-    return "Ремоут";
+  if (normalized.includes("remote") || normalized.includes("remote")) {
+    return "Remote";
   }
   return fallback;
 }
@@ -181,12 +181,12 @@ function normalizeEmploymentType(value: string | null, fallback: string) {
   if (
     normalized.includes("freelance") ||
     normalized.includes("contract") ||
-    normalized.includes("фриланс")
+    normalized.includes("freelance")
   ) {
-    return "Фриланс";
+    return "Freelance";
   }
-  if (normalized.includes("full") || normalized.includes("фулл") || normalized.includes("полная")) {
-    return "Фуллтайм";
+  if (normalized.includes("full") || normalized.includes("full")) {
+    return "Full-time";
   }
   return fallback;
 }
@@ -208,10 +208,10 @@ function applicationToForm(application: Application): ApplicationForm {
     source_name: application.application_source_name ?? "",
     position_title: application.position_title,
     position_description: application.raw_position_text ?? "",
-    location: "Ремоут",
-    remote_policy: "Ремоут",
+    location: "Remote",
+    remote_policy: "Remote",
     seniority: application.seniority ?? "",
-    employment_type: "Фуллтайм",
+    employment_type: "Full-time",
     salary_currency: DEFAULT_SALARY_CURRENCY,
     salary_preset: salaryPreset,
     salary_min:
@@ -264,7 +264,7 @@ function formatSalaryHelper(form: ApplicationForm) {
   const range = salaryFormRange(form);
   const monthly = formatSalaryRange(range.minPln, range.maxPln, "PLN");
   if (range.minPln === null && range.maxPln === null) {
-    return `В базе сохраняется как ${monthly}.`;
+    return `Stored in the database as ${monthly}.`;
   }
 
   const annualMin = range.minPln === null ? null : range.minPln * 12;
@@ -273,9 +273,9 @@ function formatSalaryHelper(form: ApplicationForm) {
   const hourlyMax = range.maxPln === null ? null : Math.round(range.maxPln / 160);
 
   return [
-    `В базе: ${monthly} / мес.`,
-    `В год: ${formatSalaryRange(annualMin, annualMax, "PLN")}.`,
-    `За час: ${formatSalaryRange(hourlyMin, hourlyMax, "PLN")}.`,
+    `In DB: ${monthly} / mo.`,
+    `Per year: ${formatSalaryRange(annualMin, annualMax, "PLN")}.`,
+    `Per hour: ${formatSalaryRange(hourlyMin, hourlyMax, "PLN")}.`,
   ].join(" ");
 }
 
@@ -362,8 +362,8 @@ export function ApplicationDialog({
       ) {
         setError(
           isEditing
-            ? "Не удалось загрузить отклик, компании, источники или документы"
-            : "Не удалось загрузить компании, источники или документы",
+            ? "Failed to load application, companies, sources or documents"
+            : "Failed to load companies, sources or documents",
         );
         setIsLoading(false);
         return;
@@ -450,7 +450,7 @@ export function ApplicationDialog({
     setWarnings([]);
 
     if (!url) {
-      setError("Вставь ссылку на публичное описание позиции");
+      setError("Paste a link to the public job description");
       return;
     }
 
@@ -466,7 +466,7 @@ export function ApplicationDialog({
 
     if (!response.ok) {
       const body = await response.json().catch(() => null);
-      setError(body?.detail ?? "Не удалось заполнить отклик по ссылке");
+      setError(body?.detail ?? "Failed to fill application from URL");
       return;
     }
 
@@ -483,7 +483,7 @@ export function ApplicationDialog({
     setWarnings([]);
 
     if (!text) {
-      setError("Вставь выгруженный текст вакансии");
+      setError("Paste the exported job text");
       return;
     }
 
@@ -502,7 +502,7 @@ export function ApplicationDialog({
 
     if (!response.ok) {
       const body = await response.json().catch(() => null);
-      setError(body?.detail ?? "Не удалось распарсить текст вакансии");
+      setError(body?.detail ?? "Failed to parse job text");
       return;
     }
 
@@ -523,7 +523,7 @@ export function ApplicationDialog({
       });
       setForm((current) => ({ ...current, cover_letter: content }));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Не удалось сгенерировать кавер-леттер");
+      setError(err instanceof Error ? err.message : "Failed to generate cover letter");
     } finally {
       setIsGeneratingCoverLetter(false);
     }
@@ -533,11 +533,11 @@ export function ApplicationDialog({
     if (isSavingCoverLetter) return;
     const rawName = coverLetterFileName.trim();
     if (!rawName) {
-      setError("Введи имя файла для кавер-леттера");
+      setError("Enter a file name for the cover letter");
       return;
     }
     if (!form.cover_letter.trim()) {
-      setError("Кавер-леттер пустой — нечего сохранять");
+      setError("Cover letter is empty — nothing to save");
       return;
     }
     const fileName = rawName.endsWith(".md") || rawName.endsWith(".docx") ? rawName : `${rawName}.md`;
@@ -557,7 +557,7 @@ export function ApplicationDialog({
       }
       setCoverLetterFileName("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Не удалось сохранить документ");
+      setError(err instanceof Error ? err.message : "Failed to save document");
     } finally {
       setIsSavingCoverLetter(false);
     }
@@ -568,7 +568,7 @@ export function ApplicationDialog({
     setError(null);
 
     if (!name) {
-      setError("Введи название компании, чтобы создать её для текущего отклика");
+      setError("Enter a company name to create it for this application");
       return;
     }
 
@@ -581,8 +581,8 @@ export function ApplicationDialog({
         name,
         website: null,
         notes: form.position_url.trim()
-          ? `Создано из отклика. Источник: ${form.position_url.trim()}`
-          : "Создано из отклика.",
+          ? `Created from application. Source: ${form.position_url.trim()}`
+          : "Created from application.",
       }),
     });
 
@@ -614,7 +614,7 @@ export function ApplicationDialog({
     }
 
     const body = await response.json().catch(() => null);
-    setError(body?.detail ?? "Не удалось создать компанию");
+    setError(body?.detail ?? "Failed to create company");
     setIsCreatingCompany(false);
   }
 
@@ -635,7 +635,7 @@ export function ApplicationDialog({
     setError(null);
 
     if (!name) {
-      setError("Введи название источника, чтобы создать его для текущего отклика");
+      setError("Enter a source name to create it for this application");
       return;
     }
 
@@ -681,7 +681,7 @@ export function ApplicationDialog({
     }
 
     const body = await response.json().catch(() => null);
-    setError(body?.detail ?? "Не удалось создать источник");
+    setError(body?.detail ?? "Failed to create source");
     setIsCreatingSource(false);
   }
 
@@ -726,12 +726,12 @@ export function ApplicationDialog({
     setError(null);
 
     if (!form.company_id) {
-      setError("Сначала создай хотя бы одну компанию");
+      setError("Create at least one company first");
       return;
     }
 
     if (!isEditing && !form.cv_document_id) {
-      setError("Выбери CV, которое было отправлено на позицию");
+      setError("Select the CV that was sent for this position");
       return;
     }
 
@@ -741,7 +741,7 @@ export function ApplicationDialog({
       salaryRange.maxPln !== null &&
       salaryRange.minPln > salaryRange.maxPln
     ) {
-      setError("Минимальная зарплата не может быть больше максимальной");
+      setError("Minimum salary cannot be greater than maximum");
       return;
     }
 
@@ -788,7 +788,7 @@ export function ApplicationDialog({
 
     if (!response.ok) {
       const body = await response.json().catch(() => null);
-      setError(body?.detail ?? "Не удалось сохранить отклик");
+      setError(body?.detail ?? "Failed to save application");
       return;
     }
 
@@ -812,7 +812,7 @@ export function ApplicationDialog({
       <Button
         aria-label={
           triggerLabel === null
-            ? (triggerTitle ?? (isEditing ? "Редактировать отклик" : "Добавить отклик"))
+            ? (triggerTitle ?? (isEditing ? "Edit application" : "Add application"))
             : undefined
         }
         title={triggerTitle}
@@ -824,7 +824,7 @@ export function ApplicationDialog({
         {isEditing ? <Pencil data-icon="inline-start" /> : <Plus data-icon="inline-start" />}
         {triggerLabel === null
           ? null
-          : (triggerLabel ?? (isEditing ? "Редактировать" : "Добавить отклик"))}
+          : (triggerLabel ?? (isEditing ? "Edit" : "Add application"))}
       </Button>
 
       <AiLoader isLoading={isScraping || isParsingText || isGeneratingCoverLetter} />
@@ -839,17 +839,17 @@ export function ApplicationDialog({
             <div className="flex items-start justify-between gap-4 border-b p-5">
               <div className="flex flex-col gap-1">
                 <h2 className="text-xl font-semibold tracking-normal">
-                  {isEditing ? "Редактировать отклик" : "Добавить отклик"}
+                  {isEditing ? "Edit application" : "Add application"}
                 </h2>
                 <p className="text-sm text-muted-foreground">
                   {isEditing
-                    ? "Измени поля и сохрани обновления по отклику."
-                    : "Пока заполняем вручную, скрейпинг подключим следующим шагом."}
+                    ? "Edit the fields and save updates for this application."
+                    : "Manual entry for now; scraping will be added in the next step."}
                 </p>
               </div>
               <Button type="button" variant="ghost" size="sm" onClick={closeDialog}>
                 <X data-icon="inline-start" />
-                Закрыть
+                Close
               </Button>
             </div>
 
@@ -863,7 +863,7 @@ export function ApplicationDialog({
 
               <div className="grid gap-3 md:grid-cols-[1fr_auto_auto]">
                 <label className="flex flex-col gap-2 text-sm font-medium">
-                  Ссылка на публичное описание позиции
+                  Link to public job description
                   <input
                     className="h-10 rounded-md border bg-background px-3 text-sm"
                     placeholder="https://..."
@@ -880,7 +880,7 @@ export function ApplicationDialog({
                     onClick={() => void fillFromPositionUrl()}
                   >
                     <WandSparkles data-icon="inline-start" />
-                    {isScraping ? "Заполнение..." : "Заполнить"}
+                    {isScraping ? "Filling..." : "Fill"}
                   </Button>
                 </div>
                 <div className="flex items-end">
@@ -890,7 +890,7 @@ export function ApplicationDialog({
                     onClick={() => setIsTextDialogOpen(true)}
                   >
                     <Code2 data-icon="inline-start" />
-                    Загрузить текст страницы
+                    Load page text
                   </Button>
                 </div>
               </div>
@@ -906,7 +906,7 @@ export function ApplicationDialog({
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium">
-                    Компания
+                    Company
                   </label>
                   <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
                     <SearchableSelect
@@ -915,7 +915,7 @@ export function ApplicationDialog({
                         value: String(company.id),
                         label: company.name,
                       }))}
-                      placeholder="Название компании"
+                      placeholder="Company name"
                       value={form.company_id || null}
                       onChange={(val) => {
                         const company = companies.find((c) => String(c.id) === val);
@@ -932,7 +932,7 @@ export function ApplicationDialog({
                     <Button
                       className="h-10 min-w-14 bg-green-600 px-5 text-lg font-semibold text-white shadow-sm hover:bg-green-700"
                       disabled={selectedCompanyExists || isCreatingCompany || isLoading}
-                      title="Создать компанию из введённого названия и выбрать её"
+                      title="Create company from entered name and select it"
                       type="button"
                       onClick={() => void createCompanyForCurrentApplication()}
                     >
@@ -943,7 +943,7 @@ export function ApplicationDialog({
 
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium">
-                    Источник
+                    Source
                   </label>
                   <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
                     <SearchableSelect
@@ -952,7 +952,7 @@ export function ApplicationDialog({
                         value: String(source.id),
                         label: source.name,
                       }))}
-                      placeholder="LinkedIn, Djinni, рекомендация..."
+                      placeholder="LinkedIn, Djinni, referral..."
                       value={form.application_source_id || null}
                       onChange={(val) => {
                         const source = applicationSources.find((s) => String(s.id) === val);
@@ -969,7 +969,7 @@ export function ApplicationDialog({
                     <Button
                       className="h-10 min-w-14 bg-green-600 px-5 text-lg font-semibold text-white shadow-sm hover:bg-green-700"
                       disabled={selectedSourceExists || isCreatingSource || isLoading}
-                      title="Создать источник из введённого названия и выбрать его"
+                      title="Create source from entered name and select it"
                       type="button"
                       onClick={() => void createSourceForCurrentApplication()}
                     >
@@ -979,7 +979,7 @@ export function ApplicationDialog({
                 </div>
 
                 <label className="flex flex-col gap-2 text-sm font-medium">
-                  Название позиции
+                  Position name
                   <input
                     className="h-10 rounded-md border bg-background px-3 text-sm"
                     required
@@ -991,7 +991,7 @@ export function ApplicationDialog({
                 </label>
 
                 <label className="flex flex-col gap-2 text-sm font-medium">
-                  CV, отправленное на позицию
+                  CV submitted for the position
                   <select
                     className="h-10 rounded-md border bg-background px-3 text-sm"
                     disabled={isLoading || selectableDocuments.length === 0}
@@ -1010,7 +1010,7 @@ export function ApplicationDialog({
                 </label>
 
                 <label className="flex flex-col gap-2 text-sm font-medium">
-                  Статус
+                  Status
                   <select
                     className="h-10 rounded-md border bg-background px-3 text-sm"
                     value={form.status}
@@ -1027,7 +1027,7 @@ export function ApplicationDialog({
                 </label>
 
                 <label className="flex flex-col gap-2 text-sm font-medium">
-                  Дата подачи
+                  Application date
                   <input
                     className="h-10 rounded-md border bg-background px-3 text-sm"
                     required
@@ -1038,7 +1038,7 @@ export function ApplicationDialog({
                 </label>
 
                 <label className="flex flex-col gap-2 text-sm font-medium">
-                  Локация
+                  Location
                   <select
                     className="h-10 rounded-md border bg-background px-3 text-sm"
                     value={form.location}
@@ -1053,7 +1053,7 @@ export function ApplicationDialog({
                 </label>
 
                 <label className="flex flex-col gap-2 text-sm font-medium">
-                  Формат работы
+                  Work format
                   <select
                     className="h-10 rounded-md border bg-background px-3 text-sm"
                     value={form.remote_policy}
@@ -1068,7 +1068,7 @@ export function ApplicationDialog({
                 </label>
 
                 <label className="flex flex-col gap-2 text-sm font-medium">
-                  Уровень
+                  Seniority
                   <select
                     className="h-10 rounded-md border bg-background px-3 text-sm"
                     value={form.seniority}
@@ -1076,7 +1076,7 @@ export function ApplicationDialog({
                       setForm({ ...form, seniority: event.target.value as SeniorityLevel | "" })
                     }
                   >
-                    <option value="">Не выбран</option>
+                    <option value="">Not selected</option>
                     {SENIORITY_LEVELS.map((seniority) => (
                       <option key={seniority} value={seniority}>
                         {seniority}
@@ -1086,7 +1086,7 @@ export function ApplicationDialog({
                 </label>
 
                 <label className="flex flex-col gap-2 text-sm font-medium">
-                  Тип занятости
+                  Employment type
                   <select
                     className="h-10 rounded-md border bg-background px-3 text-sm"
                     value={form.employment_type}
@@ -1103,7 +1103,7 @@ export function ApplicationDialog({
                 </label>
 
                 <label className="flex flex-col gap-2 text-sm font-medium">
-                  Предполагаемая зарплата
+                  Expected salary
                   <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_8rem]">
                     <select
                       className="h-10 rounded-md border bg-background px-3 text-sm"
@@ -1137,7 +1137,7 @@ export function ApplicationDialog({
                         className="h-10 rounded-md border bg-background px-3 text-sm"
                         inputMode="numeric"
                         min="0"
-                        placeholder={`От, ${form.salary_currency}`}
+                        placeholder={`From, ${form.salary_currency}`}
                         type="number"
                         value={form.salary_min}
                         onChange={(event) =>
@@ -1148,7 +1148,7 @@ export function ApplicationDialog({
                         className="h-10 rounded-md border bg-background px-3 text-sm"
                         inputMode="numeric"
                         min="0"
-                        placeholder={`До, ${form.salary_currency}`}
+                        placeholder={`To, ${form.salary_currency}`}
                         type="number"
                         value={form.salary_max}
                         onChange={(event) =>
@@ -1165,20 +1165,20 @@ export function ApplicationDialog({
                 <div className="flex items-end">
                   <p className="text-sm text-muted-foreground">
                     {selectedCompanyExists
-                      ? "Компания найдена в базе и будет привязана к отклику."
-                      : "Если компании нет в базе, нажми + после проверки названия."}
+                      ? "Company found in the database and will be linked to the application."
+                      : "If the company is not in the database, click + after verifying the name."}
                   </p>
                 </div>
               </div>
 
               {selectableDocuments.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  В папке документов нет файлов CV. Добавь CV в документы, чтобы сохранить отклик.
+                  No CV files in the documents folder. Add a CV to documents to save the application.
                 </p>
               ) : null}
 
               <label className="flex flex-col gap-2 text-sm font-medium">
-                Текст описания позиции
+                Position description text
                 <textarea
                   className="min-h-36 rounded-md border bg-background px-3 py-2 text-sm"
                   value={form.position_description}
@@ -1190,7 +1190,7 @@ export function ApplicationDialog({
 
               {form.tags.length > 0 ? (
                 <div className="flex flex-col gap-2">
-                  <p className="text-sm font-medium">Теги</p>
+                  <p className="text-sm font-medium">Tags</p>
                   <div className="flex flex-wrap gap-2">
                     {form.tags.map((tag) => (
                       <span
@@ -1206,7 +1206,7 @@ export function ApplicationDialog({
               ) : null}
 
               <label className="flex flex-col gap-2 text-sm font-medium">
-                Заметки
+                Notes
                 <textarea
                   className="min-h-24 rounded-md border bg-background px-3 py-2 text-sm"
                   value={form.notes}
@@ -1216,7 +1216,7 @@ export function ApplicationDialog({
 
               <div className="flex flex-col gap-3 rounded-lg border p-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold">Кавер-леттер</p>
+                  <p className="text-sm font-semibold">Cover letter</p>
                   <Button
                     aria-busy={isGeneratingCoverLetter}
                     disabled={isGeneratingCoverLetter}
@@ -1226,21 +1226,21 @@ export function ApplicationDialog({
                     onClick={() => void generateCoverLetterForForm()}
                   >
                     <WandSparkles data-icon="inline-start" />
-                    {isGeneratingCoverLetter ? "Генерация..." : "Сгенерировать"}
+                    {isGeneratingCoverLetter ? "Generating..." : "Generate"}
                   </Button>
                 </div>
                 <textarea
                   className="min-h-48 rounded-md border bg-background px-3 py-2 text-sm"
-                  placeholder="Вставь или сгенерируй кавер-леттер..."
+                  placeholder="Paste or generate a cover letter..."
                   value={form.cover_letter}
                   onChange={(event) => setForm({ ...form, cover_letter: event.target.value })}
                 />
                 <div className="flex items-end gap-2">
                   <label className="flex flex-1 flex-col gap-1 text-sm font-medium">
-                    Имя файла
+                    File name
                     <input
                       className="h-9 rounded-md border bg-background px-3 text-sm"
-                      placeholder="cover-letter (без расширения)"
+                      placeholder="cover-letter (no extension)"
                       value={coverLetterFileName}
                       onChange={(event) => setCoverLetterFileName(event.target.value)}
                     />
@@ -1254,15 +1254,15 @@ export function ApplicationDialog({
                     onClick={() => void saveCoverLetterAsDocument()}
                   >
                     <Save data-icon="inline-start" />
-                    {isSavingCoverLetter ? "Сохранение..." : "Сохранить в документ"}
+                    {isSavingCoverLetter ? "Saving..." : "Save to document"}
                   </Button>
                 </div>
               </div>
 
               <div className="flex flex-col gap-3">
-                <p className="text-sm font-medium">Контакт</p>
+                <p className="text-sm font-medium">Contact</p>
                 <label className="flex flex-col gap-2 text-sm font-medium">
-                  Ссылка на контакт
+                  Contact link
                   <input
                     className="h-10 rounded-md border bg-background px-3 text-sm"
                     placeholder="https://..."
@@ -1272,10 +1272,10 @@ export function ApplicationDialog({
                   />
                 </label>
                 <label className="flex flex-col gap-2 text-sm font-medium">
-                  Описание контакта
+                  Contact description
                   <textarea
                     className="min-h-20 rounded-md border bg-background px-3 py-2 text-sm"
-                    placeholder="Имя, должность, примечания..."
+                    placeholder="Name, title, notes..."
                     value={form.contact_description}
                     onChange={(event) =>
                       setForm({ ...form, contact_description: event.target.value })
@@ -1285,12 +1285,12 @@ export function ApplicationDialog({
               </div>
 
               <div className="flex flex-col gap-4 rounded-lg border p-4">
-                <p className="text-sm font-semibold">Процесс рекрутации</p>
+                <p className="text-sm font-semibold">Recruitment process</p>
                 <label className="flex flex-col gap-2 text-sm font-medium">
-                  Описание процесса
+                  Process description
                   <textarea
                     className="min-h-20 rounded-md border bg-background px-3 py-2 text-sm"
-                    placeholder="Этапы, формат интервью, сроки..."
+                    placeholder="Stages, interview format, timeline..."
                     value={form.recruitment_description}
                     onChange={(event) =>
                       setForm({ ...form, recruitment_description: event.target.value })
@@ -1301,7 +1301,7 @@ export function ApplicationDialog({
 
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={closeDialog}>
-                  Отменить
+                  Cancel
                 </Button>
                 <Button
                   disabled={
@@ -1314,10 +1314,10 @@ export function ApplicationDialog({
                     <Plus data-icon="inline-start" />
                   )}
                   {isSubmitting
-                    ? "Сохранение..."
+                    ? "Saving..."
                     : isEditing
-                      ? "Сохранить изменения"
-                      : "Сохранить отклик"}
+                      ? "Save changes"
+                      : "Save application"}
                 </Button>
               </div>
             </form>
@@ -1333,10 +1333,10 @@ export function ApplicationDialog({
                 <div className="flex items-start justify-between gap-4 border-b p-5">
                   <div className="flex flex-col gap-1">
                     <h3 className="text-lg font-semibold tracking-normal">
-                      Выгруженный текст вакансии
+                      Exported job text
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      Вставь текстовый контент страницы. Он будет передан в извлечение полей и тегов.
+                      Paste the text content of the page. It will be used for field and tag extraction.
                     </p>
                   </div>
                   <Button
@@ -1346,13 +1346,13 @@ export function ApplicationDialog({
                     onClick={() => setIsTextDialogOpen(false)}
                   >
                     <X data-icon="inline-start" />
-                    Закрыть
+                    Close
                   </Button>
                 </div>
                 <div className="flex flex-col gap-4 p-5">
                   <textarea
                     className="min-h-96 rounded-md border bg-background px-3 py-2 text-sm"
-                    placeholder="Вставь сюда текст вакансии..."
+                    placeholder="Paste job text here..."
                     value={rawTextInput}
                     onChange={(event) => setRawTextInput(event.target.value)}
                   />
@@ -1362,7 +1362,7 @@ export function ApplicationDialog({
                       variant="outline"
                       onClick={() => setIsTextDialogOpen(false)}
                     >
-                      Отменить
+                      Cancel
                     </Button>
                     <Button
                       aria-busy={isParsingText}
@@ -1370,7 +1370,7 @@ export function ApplicationDialog({
                       onClick={() => void parseRawText()}
                     >
                       <WandSparkles data-icon="inline-start" />
-                      {isParsingText ? "Парсинг..." : "Сохранить и распарсить"}
+                      {isParsingText ? "Parsing..." : "Save and parse"}
                     </Button>
                   </div>
                 </div>

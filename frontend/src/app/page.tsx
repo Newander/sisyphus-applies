@@ -74,21 +74,21 @@ function SeniorityStatsCard({
       <CardContent>
         {rows.length === 0 ? (
           <p className="rounded-md bg-muted px-3 py-6 text-center text-sm text-muted-foreground">
-            Нет откликов за этот период.
+            No applications for this period.
           </p>
         ) : (
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead>Сеньорити</TableHead>
-                <TableHead className="w-24 text-right">Отклики</TableHead>
+                <TableHead>Seniority</TableHead>
+                <TableHead className="w-24 text-right">Applications</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {rows.map((row) => (
                 <TableRow key={row.seniority ?? "empty-seniority"}>
                   <TableCell className="font-medium">
-                    {row.seniority ?? "Не указано"}
+                    {row.seniority ?? "Not specified"}
                   </TableCell>
                   <TableCell className="text-right">
                     <span className="rounded-md bg-muted px-2 py-1 font-semibold">
@@ -128,9 +128,9 @@ export default async function DashboardPage() {
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div className="flex flex-col gap-2">
               <p className="text-sm font-medium text-muted-foreground">
-                Локальный трекер поиска работы
+                Local job search tracker
               </p>
-              <h1 className="text-3xl font-semibold tracking-normal">Дашборд</h1>
+              <h1 className="text-3xl font-semibold tracking-normal">Dashboard</h1>
             </div>
             <ApplicationDialog />
           </div>
@@ -139,9 +139,9 @@ export default async function DashboardPage() {
         {dashboard === null ? (
           <Card>
             <CardHeader>
-              <CardTitle>Backend API недоступен</CardTitle>
+              <CardTitle>Backend API unavailable</CardTitle>
               <CardDescription className="break-all">
-                Не удалось подключиться к {apiBaseUrl}. Запусти backend и обнови страницу.
+                Could not connect to {apiBaseUrl}. Start the backend and refresh the page.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
@@ -157,14 +157,14 @@ export default async function DashboardPage() {
           <>
             <section className="grid gap-4 lg:grid-cols-2">
               <SeniorityStatsCard
-                title="Всё время: отклики / позиции"
-                description="Распределение всех сохраненных откликов."
+                title="All time: applications / positions"
+                description="Distribution of all saved applications."
                 rows={dashboard.seniority_all_time}
                 total={dashboard.stats.applications_total}
               />
               <SeniorityStatsCard
-                title="Сегодня: отклики / позиции"
-                description="Отклики, отправленные за текущий день."
+                title="Today: applications / positions"
+                description="Applications submitted today."
                 rows={dashboard.seniority_today}
                 total={dashboard.stats.applications_today}
               />
@@ -172,27 +172,27 @@ export default async function DashboardPage() {
 
             <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               <MetricCard
-                title="Всего подач"
+                title="Total applications"
                 value={dashboard.stats.applications_total}
-                description="Все сохраненные отклики"
+                description="All saved applications"
                 icon={BriefcaseBusiness}
               />
               <MetricCard
-                title="Подачи за сегодня"
+                title="Applications today"
                 value={dashboard.stats.applications_today}
-                description="Активность за текущий день"
+                description="Activity for today"
                 icon={Building2}
               />
               <MetricCard
-                title="Всего апдейтов"
+                title="Total updates"
                 value={dashboard.stats.updates_total}
-                description="Статусы, письма, события"
+                description="Statuses, emails, events"
                 icon={Inbox}
               />
               <MetricCard
-                title="Апдейты за сегодня"
+                title="Updates today"
                 value={dashboard.stats.updates_today}
-                description="Изменения за текущий день"
+                description="Changes for today"
                 icon={FileText}
               />
             </section>
@@ -200,8 +200,8 @@ export default async function DashboardPage() {
             <section>
               <Card>
                 <CardHeader>
-                  <CardTitle>Активность за 30 дней</CardTitle>
-                  <CardDescription>Новые отклики и апдейты по дням.</CardDescription>
+                  <CardTitle>Activity over 30 days</CardTitle>
+                  <CardDescription>New applications and updates by day.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ApplicationsTimelineChart data={dashboard.timeline} />
@@ -212,8 +212,8 @@ export default async function DashboardPage() {
             <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
               <Card>
                 <CardHeader>
-                  <CardTitle>Последние позиции</CardTitle>
-                  <CardDescription>Последние 5 добавленных позиций.</CardDescription>
+                  <CardTitle>Recent positions</CardTitle>
+                  <CardDescription>Last 5 added positions.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <RecentCompaniesTable
@@ -227,14 +227,14 @@ export default async function DashboardPage() {
                 <CardHeader>
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex flex-col gap-1">
-                      <CardTitle>Документы</CardTitle>
+                      <CardTitle>Documents</CardTitle>
                       <CardDescription className="break-all">
                         Storage folder: {dashboard.storage_dir}
                       </CardDescription>
                     </div>
                     <CreateDocumentDialog
                       iconOnly
-                      triggerLabel="Создать документ"
+                      triggerLabel="Create document"
                       triggerSize="sm"
                       triggerVariant="outline"
                     />

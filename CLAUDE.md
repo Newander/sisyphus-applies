@@ -4,14 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Local single-user job search tracker. Tracks applications, companies, Gmail messages, and documents. No auth inside the app — single user only. Data stays local (PostgreSQL + local filesystem).
+Local single-user job search tracker. Tracks applications, companies, and documents. No auth inside the app — single user only. Data stays local (PostgreSQL + local filesystem).
 
 ## Architecture
 
 Three processes run together:
 
-- **Frontend** — Next.js 15 / React 19 / TypeScript / Tailwind CSS / shadcn/ui, at `http://localhost:3000`. All API calls go to the backend via `src/lib/api.ts`.
-- **Backend** — FastAPI + SQLAlchemy 2 + psycopg3, at `http://127.0.0.1:8000`. Entry point: `backend/main.py`. Routers live in `backend/api/`, business logic in `backend/services/`.
+- **Frontend** — Next.js 15 / React 19 / TypeScript / Tailwind CSS / shadcn/ui, at `http://localhost:9001`. All API calls go to the backend via `src/lib/api.ts`.
+- **Backend** — FastAPI + SQLAlchemy 2 + psycopg3, at `http://127.0.0.1:9002`. Entry point: `backend/main.py`. Routers live in `backend/api/`, business logic in `backend/services/`.
 - **Worker** — `backend/worker.py`, runs APScheduler jobs (currently just a heartbeat). Starts independently.
 
 Both backend and worker call `upgrade_database()` on startup, so migrations apply automatically — no manual migration step needed during development.
@@ -24,7 +24,6 @@ PostgreSQL. Core domain models in `backend/models.py`:
 - `JobApplication` has `ApplicationStatus` enum with a defined transition graph (`APPLICATION_STATUS_TRANSITIONS`)
 - `ApplicationUpdate` records history for each status change
 - `Document` stores file metadata; files live in `JOB_TRACKER_STORAGE_DIR`
-- `GmailAccount` + `GmailMessage` for Gmail integration
 - `FeatureMemory` for screenshot-based feature tracking
 
 Migrations are in `migrations/` (Alembic). Create a new migration:
@@ -38,11 +37,11 @@ make alembic-revision m="describe the change"
 ### Backend
 
 ```bash
-# Install dependencies (Linux/Mac — on Windows use scripts/install-backend.ps1)
-python -m venv .venv && .venv/bin/pip install -e ".[dev]"
+# Install dependencies
+python3 -m venv .venv && .venv/bin/pip install -e ".[dev]"
 
 # Run backend
-.venv/bin/uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload
+.venv/bin/uvicorn backend.main:app --host 127.0.0.1 --port 9002 --reload --reload-dir backend
 
 # Run worker
 .venv/bin/python -m backend.worker
@@ -53,7 +52,6 @@ python -m venv .venv && .venv/bin/pip install -e ".[dev]"
 
 # Tests
 .venv/bin/pytest backend/tests/
-.venv/bin/pytest backend/tests/test_dashboard.py  # single test file
 ```
 
 ### Frontend
@@ -61,7 +59,7 @@ python -m venv .venv && .venv/bin/pip install -e ".[dev]"
 ```bash
 cd frontend
 npm install
-npm run dev    # dev server at http://localhost:3000
+npm run dev    # dev server at http://localhost:9001
 npm run lint   # ESLint
 npm run build  # production build
 ```
@@ -83,13 +81,7 @@ Copy `.env.example` to `.env` and fill in PostgreSQL credentials. Key vars:
 |---|---|---|
 | `POSTGRES_*` | localhost/postgres | DB connection |
 | `JOB_TRACKER_STORAGE_DIR` | `storage/documents` | Where uploaded files are stored |
-| `GOOGLE_CLIENT_SECRET_FILE` | `credentials/client_secret.json` | OAuth secret from Google Cloud Console |
-| `GOOGLE_GMAIL_TOKEN_FILE` | `credentials/gmail_token.json` | Written after `connect-gmail` flow |
 | `CODEX_CLI_COMMAND` | `codex` | Path to Codex CLI binary |
-
-## Gmail integration
-
-OAuth Desktop App flow with `gmail.readonly` scope. Run `connect-gmail` once to write the token, then use `sync-gmail` for manual sync. The backend also exposes `/api/gmail/sync` for in-app sync triggering.
 
 ## Codex bridge
 
@@ -102,8 +94,142 @@ OAuth Desktop App flow with `gmail.readonly` scope. Run `connect-gmail` once to 
 - `backend/db.py` — SQLAlchemy engine + `get_session()` dependency.
 - Frontend API client is centralized in `frontend/src/lib/api.ts`; add new endpoints there.
 - `ruff` is the only linter/formatter — line length 100, Python 3.12 target.
-- No mypy configured yet (noted in docs as future addition after domain model stabilizes).
 
-## OS note
+<!-- rtk-instructions v2 -->
+# RTK (Rust Token Killer) - Token-Optimized Commands
 
-Primary development platform is Windows 10. Scripts in `scripts/` are PowerShell (`.ps1`). On Linux, use the equivalent commands directly.
+## Golden Rule
+
+**Always prefix commands with `rtk`**. If RTK has a dedicated filter, it uses it. If not, it passes through unchanged. This means RTK is always safe to use.
+
+**Important**: Even in command chains with `&&`, use `rtk`:
+```bash
+# ❌ Wrong
+git add . && git commit -m "msg" && git push
+
+# ✅ Correct
+rtk git add . && rtk git commit -m "msg" && rtk git push
+```
+
+## RTK Commands by Workflow
+
+### Build & Compile (80-90% savings)
+```bash
+rtk cargo build         # Cargo build output
+rtk cargo check         # Cargo check output
+rtk cargo clippy        # Clippy warnings grouped by file (80%)
+rtk tsc                 # TypeScript errors grouped by file/code (83%)
+rtk lint                # ESLint/Biome violations grouped (84%)
+rtk prettier --check    # Files needing format only (70%)
+rtk next build          # Next.js build with route metrics (87%)
+```
+
+### Test (60-99% savings)
+```bash
+rtk cargo test          # Cargo test failures only (90%)
+rtk go test             # Go test failures only (90%)
+rtk jest                # Jest failures only (99.5%)
+rtk vitest              # Vitest failures only (99.5%)
+rtk playwright test     # Playwright failures only (94%)
+rtk pytest              # Python test failures only (90%)
+rtk rake test           # Ruby test failures only (90%)
+rtk rspec               # RSpec test failures only (60%)
+rtk test <cmd>          # Generic test wrapper - failures only
+```
+
+### Git (59-80% savings)
+```bash
+rtk git status          # Compact status
+rtk git log             # Compact log (works with all git flags)
+rtk git diff            # Compact diff (80%)
+rtk git show            # Compact show (80%)
+rtk git add             # Ultra-compact confirmations (59%)
+rtk git commit          # Ultra-compact confirmations (59%)
+rtk git push            # Ultra-compact confirmations
+rtk git pull            # Ultra-compact confirmations
+rtk git branch          # Compact branch list
+rtk git fetch           # Compact fetch
+rtk git stash           # Compact stash
+rtk git worktree        # Compact worktree
+```
+
+Note: Git passthrough works for ALL subcommands, even those not explicitly listed.
+
+### GitHub (26-87% savings)
+```bash
+rtk gh pr view <num>    # Compact PR view (87%)
+rtk gh pr checks        # Compact PR checks (79%)
+rtk gh run list         # Compact workflow runs (82%)
+rtk gh issue list       # Compact issue list (80%)
+rtk gh api              # Compact API responses (26%)
+```
+
+### JavaScript/TypeScript Tooling (70-90% savings)
+```bash
+rtk pnpm list           # Compact dependency tree (70%)
+rtk pnpm outdated       # Compact outdated packages (80%)
+rtk pnpm install        # Compact install output (90%)
+rtk npm run <script>    # Compact npm script output
+rtk npx <cmd>           # Compact npx command output
+rtk prisma              # Prisma without ASCII art (88%)
+```
+
+### Files & Search (60-75% savings)
+```bash
+rtk ls <path>           # Tree format, compact (65%)
+rtk read <file>         # Code reading with filtering (60%)
+rtk grep <pattern>      # Search grouped by file (75%). Format flags (-c, -l, -L, -o, -Z) run raw.
+rtk find <pattern>      # Find grouped by directory (70%)
+```
+
+### Analysis & Debug (70-90% savings)
+```bash
+rtk err <cmd>           # Filter errors only from any command
+rtk log <file>          # Deduplicated logs with counts
+rtk json <file>         # JSON structure without values
+rtk deps                # Dependency overview
+rtk env                 # Environment variables compact
+rtk summary <cmd>       # Smart summary of command output
+rtk diff                # Ultra-compact diffs
+```
+
+### Infrastructure (85% savings)
+```bash
+rtk docker ps           # Compact container list
+rtk docker images       # Compact image list
+rtk docker logs <c>     # Deduplicated logs
+rtk kubectl get         # Compact resource list
+rtk kubectl logs        # Deduplicated pod logs
+```
+
+### Network (65-70% savings)
+```bash
+rtk curl <url>          # Compact HTTP responses (70%)
+rtk wget <url>          # Compact download output (65%)
+```
+
+### Meta Commands
+```bash
+rtk gain                # View token savings statistics
+rtk gain --history      # View command history with savings
+rtk discover            # Analyze Claude Code sessions for missed RTK usage
+rtk proxy <cmd>         # Run command without filtering (for debugging)
+rtk init                # Add RTK instructions to CLAUDE.md
+rtk init --global       # Add RTK to ~/.claude/CLAUDE.md
+```
+
+## Token Savings Overview
+
+| Category | Commands | Typical Savings |
+|----------|----------|-----------------|
+| Tests | vitest, playwright, cargo test | 90-99% |
+| Build | next, tsc, lint, prettier | 70-87% |
+| Git | status, log, diff, add, commit | 59-80% |
+| GitHub | gh pr, gh run, gh issue | 26-87% |
+| Package Managers | pnpm, npm, npx | 70-90% |
+| Files | ls, read, grep, find | 60-75% |
+| Infrastructure | docker, kubectl | 85% |
+| Network | curl, wget | 65-70% |
+
+Overall average: **60-90% token reduction** on common development operations.
+<!-- /rtk-instructions -->

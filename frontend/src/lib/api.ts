@@ -303,28 +303,6 @@ export type ApplicationScrapePreview = {
   warnings: string[];
 };
 
-export type GmailStatus = {
-  connected: boolean;
-  email_address: string | null;
-  last_sync_at: string | null;
-  messages_count: number;
-  token_file_exists: boolean;
-  client_secret_file_exists: boolean;
-  sync_query: string;
-};
-
-export type GmailMessage = {
-  id: number;
-  gmail_id: string;
-  thread_id: string;
-  sender: string | null;
-  recipients: string | null;
-  subject: string | null;
-  snippet: string | null;
-  internal_date: string | null;
-  received_at: string | null;
-};
-
 export type CodexStatus = {
   command: string[];
   cwd: string;
@@ -347,56 +325,6 @@ export type FeatureMemory = {
   created_at: string;
   closed_at: string | null;
 };
-
-export async function getGmailStatus(): Promise<GmailStatus> {
-  const response = await fetch(`${apiBaseUrl}/api/gmail/status`, {
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error(`Gmail status API failed with ${response.status}`);
-  }
-
-  return response.json();
-}
-
-export async function getGmailMessages(): Promise<GmailMessage[]> {
-  const response = await fetch(`${apiBaseUrl}/api/gmail/messages`, {
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error(`Gmail messages API failed with ${response.status}`);
-  }
-
-  return response.json();
-}
-
-export async function getGmailMessagesPage(
-  query: PageQuery,
-): Promise<PageResponse<GmailMessage>> {
-  const response = await fetch(`${apiBaseUrl}/api/gmail/messages/page?${pageSearchParams(query)}`, {
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error(`Gmail messages page API failed with ${response.status}`);
-  }
-
-  return response.json();
-}
-
-export async function deleteGmailMessage(id: number): Promise<void> {
-  const response = await fetch(`${apiBaseUrl}/api/gmail/messages/${id}`, {
-    method: "DELETE",
-  });
-
-  if (!response.ok) {
-    const body = await response.json().catch(() => null);
-    const detail = body?.detail ? `: ${body.detail}` : "";
-    throw new Error(`Gmail message delete failed with ${response.status}${detail}`);
-  }
-}
 
 export async function getCodexStatus(): Promise<CodexStatus> {
   const response = await fetch(`${apiBaseUrl}/api/codex/status`, {

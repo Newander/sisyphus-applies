@@ -1,7 +1,7 @@
 from logging.config import fileConfig
 
 from alembic import context
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import engine_from_config, pool, text
 
 from backend import models  # noqa: F401
 from backend.config import get_settings
@@ -16,12 +16,16 @@ config.set_main_option("sqlalchemy.url", get_settings().database_url)
 target_metadata = Base.metadata
 
 
+_SCHEMA = "sisyphus_applies"
+
+
 def run_migrations_offline() -> None:
     context.configure(
         url=get_settings().database_url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        version_table_schema=_SCHEMA,
     )
 
     with context.begin_transaction():
@@ -33,10 +37,18 @@ def run_migrations_online() -> None:
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
+        connect_args={"options": f"-csearch_path={_SCHEMA},public"},
     )
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        connection.execute(text(f"CREATE SCHEMA IF NOT EXISTS {_SCHEMA}"))
+        connection.commit()
+
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata,
+            version_table_schema=_SCHEMA,
+        )
 
         with context.begin_transaction():
             context.run_migrations()

@@ -16,7 +16,7 @@ export function DeleteDocumentButton({ documentId, documentName }: DeleteDocumen
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleDelete() {
-    const confirmed = window.confirm(`Удалить файл "${documentName}" в корзину?`);
+    const confirmed = window.confirm(`Move file "${documentName}" to recycle bin?`);
     if (!confirmed) {
       return;
     }
@@ -27,7 +27,7 @@ export function DeleteDocumentButton({ documentId, documentName }: DeleteDocumen
       router.push("/documents");
       router.refresh();
     } catch {
-      window.alert("Не удалось отправить файл в корзину.");
+      window.alert("Failed to send file to recycle bin.");
       setIsDeleting(false);
     }
   }
@@ -40,7 +40,7 @@ export function DeleteDocumentButton({ documentId, documentName }: DeleteDocumen
       type="button"
       variant="destructive"
     >
-      {isDeleting ? "Удаление..." : "Удалить"}
+      {isDeleting ? "Deleting..." : "Delete"}
     </Button>
   );
 }

@@ -20,15 +20,15 @@ def make_session() -> Session:
 def test_feature_memory_lifecycle() -> None:
     session = make_session()
     payload = FeatureMemoryCreate(
-        text="Добавить быстрый фильтр",
+        text="Add quick filter",
         page_url="http://localhost:3000/applications",
-        page_title="Отклики",
+        page_title="Applications",
         screenshot_data_url="data:image/png;base64,abc",
     )
 
     created = create_feature_memory(payload, session)
     assert created.id is not None
-    assert created.text == "Добавить быстрый фильтр"
+    assert created.text == "Add quick filter"
     assert created.page_url == "http://localhost:3000/applications"
 
     assert [memory.id for memory in list_feature_memories(session)] == [created.id]

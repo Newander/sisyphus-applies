@@ -29,11 +29,11 @@ export function ApplicationsTimelineChart({ data }: { data: TimelinePoint[] }) {
           labelFormatter={(label: string) => label}
           formatter={(value: number, name: string) => [
             value,
-            name === "applications" ? "Отклики" : "Апдейты",
+            name === "applications" ? "Applications" : "Updates",
           ]}
         />
         <Legend
-          formatter={(value: string) => (value === "applications" ? "Отклики" : "Апдейты")}
+          formatter={(value: string) => (value === "applications" ? "Applications" : "Updates")}
         />
         <Line
           type="monotone"

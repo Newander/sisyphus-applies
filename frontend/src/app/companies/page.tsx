@@ -47,7 +47,7 @@ export default function CompaniesPage() {
     () => [
       {
         id: "name",
-        header: "Компания",
+        header: "Company",
         accessor: "name",
         cell: (company) => (
           <div className="flex flex-col gap-1">
@@ -60,12 +60,12 @@ export default function CompaniesPage() {
       },
       {
         id: "applications_count",
-        header: "Отклики",
+        header: "Applications",
         accessor: "applications_count",
       },
       {
         id: "updated_at",
-        header: "Обновлена",
+        header: "Updated",
         accessor: "updated_at",
         className: "text-muted-foreground",
         sortValue: (company) => new Date(company.updated_at),
@@ -88,7 +88,7 @@ export default function CompaniesPage() {
       setCompanies(page.items);
       setTotalCompanies(page.total);
     } catch {
-      setError("Не удалось загрузить компании");
+      setError("Failed to load companies");
     } finally {
       setIsLoading(false);
     }
@@ -131,7 +131,7 @@ export default function CompaniesPage() {
 
     if (!response.ok) {
       const body = await response.json().catch(() => null);
-      setError(body?.detail ?? "Не удалось сохранить компанию");
+      setError(body?.detail ?? "Failed to save company");
       return;
     }
 
@@ -140,7 +140,7 @@ export default function CompaniesPage() {
   }
 
   async function deleteCompany(company: Company) {
-    if (!window.confirm(`Удалить компанию ${company.name}?`)) {
+    if (!window.confirm(`Delete company ${company.name}?`)) {
       return;
     }
 
@@ -149,7 +149,7 @@ export default function CompaniesPage() {
     });
     if (!response.ok) {
       const body = await response.json().catch(() => null);
-      setError(body?.detail ?? "Не удалось удалить компанию");
+      setError(body?.detail ?? "Failed to delete company");
       return;
     }
     setCompanies((current) => current.filter((item) => item.id !== company.id));
@@ -162,8 +162,8 @@ export default function CompaniesPage() {
         <header className="flex flex-col gap-4 rounded-lg border-l-4 border-primary bg-muted p-5">
           <AppNav active="companies" />
           <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-muted-foreground">Справочник</p>
-            <h1 className="text-3xl font-semibold tracking-normal">Компании</h1>
+            <p className="text-sm font-medium text-muted-foreground">Directory</p>
+            <h1 className="text-3xl font-semibold tracking-normal">Companies</h1>
           </div>
         </header>
 
@@ -176,13 +176,13 @@ export default function CompaniesPage() {
         <section className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
           <Card>
             <CardHeader>
-              <CardTitle>{editingCompany ? "Редактировать компанию" : "Новая компания"}</CardTitle>
-              <CardDescription>Компании используются при создании откликов.</CardDescription>
+              <CardTitle>{editingCompany ? "Edit company" : "New company"}</CardTitle>
+              <CardDescription>Companies are used when creating applications.</CardDescription>
             </CardHeader>
             <CardContent>
               <form className="flex flex-col gap-4" onSubmit={submitForm}>
                 <label className="flex flex-col gap-2 text-sm font-medium">
-                  Название
+                  Name
                   <input
                     className="h-10 rounded-md border bg-background px-3 text-sm"
                     required
@@ -191,7 +191,7 @@ export default function CompaniesPage() {
                   />
                 </label>
                 <label className="flex flex-col gap-2 text-sm font-medium">
-                  Сайт
+                  Website
                   <input
                     className="h-10 rounded-md border bg-background px-3 text-sm"
                     type="url"
@@ -200,7 +200,7 @@ export default function CompaniesPage() {
                   />
                 </label>
                 <label className="flex flex-col gap-2 text-sm font-medium">
-                  Заметки
+                  Notes
                   <textarea
                     className="min-h-28 rounded-md border bg-background px-3 py-2 text-sm"
                     value={form.notes}
@@ -210,12 +210,12 @@ export default function CompaniesPage() {
                 <div className="flex flex-wrap gap-2">
                   <Button type="submit">
                     <Plus data-icon="inline-start" />
-                    {editingCompany ? "Сохранить" : "Создать"}
+                    {editingCompany ? "Save" : "Create"}
                   </Button>
                   {editingCompany ? (
                     <Button type="button" variant="outline" onClick={resetForm}>
                       <X data-icon="inline-start" />
-                      Отменить
+                      Cancel
                     </Button>
                   ) : null}
                 </div>
@@ -225,14 +225,14 @@ export default function CompaniesPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Список компаний</CardTitle>
-              <CardDescription>{companies.length} компаний в локальной базе.</CardDescription>
+              <CardTitle>Company list</CardTitle>
+              <CardDescription>{companies.length} companies in the local database.</CardDescription>
             </CardHeader>
             <CardContent>
               <DataTable
                 columns={columns}
                 data={companies}
-                emptyMessage="Компаний пока нет."
+                emptyMessage="No companies yet."
                 initialSort={{ columnId: "name", direction: "asc" }}
                 isLoading={isLoading}
                 onQueryChange={loadCompanies}
@@ -241,8 +241,8 @@ export default function CompaniesPage() {
                 renderActions={(company) => (
                   <>
                     <Button
-                      aria-label="Редактировать"
-                      title="Редактировать"
+                      aria-label="Edit"
+                      title="Edit"
                       type="button"
                       variant="outline"
                       size="icon"
@@ -254,8 +254,8 @@ export default function CompaniesPage() {
                       <Edit2 />
                     </Button>
                     <Button
-                      aria-label="Удалить"
-                      title="Удалить"
+                      aria-label="Delete"
+                      title="Delete"
                       type="button"
                       variant="destructive"
                       size="icon"

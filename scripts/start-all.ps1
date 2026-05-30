@@ -20,7 +20,7 @@ Start-Process powershell -ArgumentList @(
     "-File", "`"$Root\scripts\start-frontend.ps1`""
 )
 
-Write-Host "Started backend on http://127.0.0.1:8000"
-Write-Host "Started frontend on http://localhost:3000"
+Write-Host "Started backend on http://127.0.0.1:9002"
+Write-Host "Started frontend on http://localhost:9001"
 Write-Host "Started worker in background"
 

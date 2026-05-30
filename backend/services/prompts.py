@@ -13,17 +13,17 @@ _PROMPTS_DIR = Path(__file__).parent.parent / "prompts"
 _DEFAULT_PROMPTS = [
     {
         "name": "codex_bridge",
-        "description": "Базовый промпт для ответов на вопросы о проекте через Codex",
+        "description": "Base prompt for answering project questions via Codex",
         "file": "codex_bridge.md",
     },
     {
         "name": "job_post_extraction",
-        "description": "Извлечение данных вакансии из текста страницы",
+        "description": "Extracting job data from page text",
         "file": "job_post_extraction.md",
     },
     {
         "name": "cover_letter_generation",
-        "description": "Генерация сопроводительного письма по контексту отклика",
+        "description": "Generating a cover letter from application context",
         "file": None,
         "content": (
             "Generate a professional cover letter based on the job application context"

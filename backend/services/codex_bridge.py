@@ -60,7 +60,7 @@ async def resolve_codex_context(settings: Settings, request: CodexAskRequest) ->
         raw_text, warnings = await scrape_rendered_text(source_url, settings)
         if len(raw_text) > MAX_RAW_TEXT_CHARS:
             raw_text = raw_text[:MAX_RAW_TEXT_CHARS]
-            warnings.append("Текст страницы был обрезан перед отправкой в Codex.")
+            warnings.append("Page text was truncated before sending to Codex.")
         return CodexContext(text=raw_text, source=source_url, warnings=warnings)
 
     return CodexContext(text=request.context, source="manual text", warnings=[])

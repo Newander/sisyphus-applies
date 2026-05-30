@@ -11,11 +11,11 @@ export const APPLICATION_STAGES = [
 export type ApplicationStage = (typeof APPLICATION_STAGES)[number];
 
 export const applicationStageLabels: Record<ApplicationStage, string> = {
-  sent_cv: "CV отправлено",
-  recruiter_call: "Созвон с рекрутёром",
-  receive_response: "Получен ответ",
-  interview_scheduled: "Интервью назначено",
-  interview_finished: "Интервью завершено",
-  offer: "Оффер",
-  rejected: "Отказ",
+  sent_cv: "CV Sent",
+  recruiter_call: "Recruiter Call",
+  receive_response: "Response Received",
+  interview_scheduled: "Interview Scheduled",
+  interview_finished: "Interview Completed",
+  offer: "Offer",
+  rejected: "Rejected",
 };

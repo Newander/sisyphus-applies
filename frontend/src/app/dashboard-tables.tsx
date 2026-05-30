@@ -37,31 +37,31 @@ export function RecentCompaniesTable({ companies: initialCompanies, total }: Rec
     () => [
       {
         id: "company_name",
-        header: "Компания",
+        header: "Company",
         accessor: "company_name",
         cell: (company) => (
           <div className="flex flex-col gap-1">
             <span className="font-medium">{company.company_name}</span>
             <span className="text-xs text-muted-foreground">
-              {company.applications_count} откликов
+              {company.applications_count} applications
             </span>
           </div>
         ),
       },
       {
         id: "latest_position",
-        header: "Позиция",
+        header: "Position",
         accessor: "latest_position",
       },
       {
         id: "latest_status",
-        header: "Статус",
+        header: "Status",
         sortValue: (company) => formatStatus(company.latest_status),
         cell: (company) => <Badge variant="secondary">{formatStatus(company.latest_status)}</Badge>,
       },
       {
         id: "latest_added_at",
-        header: "Добавлено",
+        header: "Added",
         sortValue: (company) => new Date(company.latest_added_at),
         headerClassName: "text-right",
         className: "text-right text-muted-foreground",
@@ -88,7 +88,7 @@ export function RecentCompaniesTable({ companies: initialCompanies, total }: Rec
   }, []);
 
   async function removeApplication(company: RecentCompany) {
-    if (!window.confirm(`Удалить отклик ${company.latest_position}?`)) {
+    if (!window.confirm(`Delete application for ${company.latest_position}?`)) {
       return;
     }
 
@@ -97,7 +97,7 @@ export function RecentCompaniesTable({ companies: initialCompanies, total }: Rec
     });
 
     if (!response.ok) {
-      window.alert("Не удалось удалить отклик.");
+      window.alert("Failed to delete application.");
       return;
     }
 
@@ -111,7 +111,7 @@ export function RecentCompaniesTable({ companies: initialCompanies, total }: Rec
     <DataTable
       columns={columns}
       data={companies}
-      emptyMessage="Пока нет сохраненных откликов. После добавления заявок здесь появятся последние позиции."
+      emptyMessage="No applications saved yet. Recent positions will appear here after adding applications."
       initialPageSize={5}
       initialSort={{ columnId: "latest_added_at", direction: "desc" }}
       isLoading={isLoading}
@@ -125,13 +125,13 @@ export function RecentCompaniesTable({ companies: initialCompanies, total }: Rec
             applicationId={company.latest_application_id}
             triggerLabel={null}
             triggerSize="icon"
-            triggerTitle="Редактировать"
+            triggerTitle="Edit"
             triggerVariant="outline"
           />
           <Button
-            aria-label="Удалить"
+            aria-label="Delete"
             size="icon"
-            title="Удалить"
+            title="Delete"
             type="button"
             variant="destructive"
             onClick={() => void removeApplication(company)}
@@ -153,7 +153,7 @@ export function DashboardDocumentsTable({ documents: initialDocuments, total }: 
     () => [
       {
         id: "name",
-        header: "Документ",
+        header: "Document",
         accessor: "name",
         cell: (document) => (
           <Link
@@ -168,7 +168,7 @@ export function DashboardDocumentsTable({ documents: initialDocuments, total }: 
       },
       {
         id: "document_type",
-        header: "Тип",
+        header: "Type",
         accessor: "document_type",
         cell: (document) => (
           <Badge variant="outline">{formatDocumentType(document.document_type)}</Badge>
@@ -176,14 +176,14 @@ export function DashboardDocumentsTable({ documents: initialDocuments, total }: 
       },
       {
         id: "size_bytes",
-        header: "Размер",
+        header: "Size",
         accessor: "size_bytes",
         className: "text-muted-foreground",
         cell: (document) => formatFileSize(document.size_bytes),
       },
       {
         id: "modified_at",
-        header: "Изменен",
+        header: "Modified",
         sortValue: (document) => new Date(document.modified_at),
         className: "text-muted-foreground",
         cell: (document) => formatDate(document.modified_at),
@@ -209,7 +209,7 @@ export function DashboardDocumentsTable({ documents: initialDocuments, total }: 
   }, []);
 
   async function removeDocument(document: DocumentItem) {
-    if (!window.confirm(`Удалить документ ${document.name}?`)) {
+    if (!window.confirm(`Delete document ${document.name}?`)) {
       return;
     }
 
@@ -218,7 +218,7 @@ export function DashboardDocumentsTable({ documents: initialDocuments, total }: 
       setDocuments((current) => current.filter((item) => item.id !== document.id));
       setTotalDocuments((current) => Math.max(0, current - 1));
     } catch {
-      window.alert("Не удалось отправить файл в корзину.");
+      window.alert("Failed to send file to recycle bin.");
     }
   }
 
@@ -226,7 +226,7 @@ export function DashboardDocumentsTable({ documents: initialDocuments, total }: 
     <DataTable
       columns={columns}
       data={documents}
-      emptyMessage="В папке документов пока нет файлов PDF, DOCX, RTF, TXT или MD."
+      emptyMessage="No PDF, DOCX, RTF, TXT, or MD files in the documents folder yet."
       initialPageSize={5}
       initialSort={{ columnId: "modified_at", direction: "desc" }}
       isLoading={isLoading}
@@ -236,9 +236,9 @@ export function DashboardDocumentsTable({ documents: initialDocuments, total }: 
       totalItems={totalDocuments}
       renderActions={(document) => (
         <Button
-          aria-label="Удалить"
+          aria-label="Delete"
           size="icon"
-          title="Удалить"
+          title="Delete"
           type="button"
           variant="destructive"
           onClick={() => void removeDocument(document)}

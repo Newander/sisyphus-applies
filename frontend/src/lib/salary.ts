@@ -63,11 +63,11 @@ export function presetToSalaryRange(presetId: SalaryPresetId): SalaryRange {
 
 export function salaryPresetLabel(presetId: SalaryPresetId, currency: SalaryCurrency) {
   if (presetId === "none") {
-    return "Не выбрана";
+    return "Not selected";
   }
 
   if (presetId === "custom") {
-    return "Своя сумма";
+    return "Custom amount";
   }
 
   const preset = SALARY_PRESETS.find((item) => item.id === presetId);
@@ -76,7 +76,7 @@ export function salaryPresetLabel(presetId: SalaryPresetId, currency: SalaryCurr
   }
 
   const formatAmount = (amountUsd: number) =>
-    salaryAmountFromPln(salaryAmountToPln(amountUsd, "USD"), currency).toLocaleString("ru-RU");
+    salaryAmountFromPln(salaryAmountToPln(amountUsd, "USD"), currency).toLocaleString("en-US");
   const suffix = currency === "USD" ? "$" : "PLN";
 
   if (preset.minUsd === null && preset.maxUsd !== null) {
@@ -91,7 +91,7 @@ export function salaryPresetLabel(presetId: SalaryPresetId, currency: SalaryCurr
     return `${formatAmount(preset.minUsd)} - ${formatAmount(preset.maxUsd)} ${suffix}`;
   }
 
-  return "Не выбрана";
+  return "Not selected";
 }
 
 export function salaryRangeToPreset(minPln: number | null, maxPln: number | null): SalaryPresetId {
@@ -118,7 +118,7 @@ export function formatSalaryRange(
 
   const suffix = currency === "USD" ? "$" : "PLN";
   const formatAmount = (amountPln: number) =>
-    salaryAmountFromPln(amountPln, currency).toLocaleString("ru-RU");
+    salaryAmountFromPln(amountPln, currency).toLocaleString("en-US");
 
   if (minPln === null && maxPln !== null) {
     return `< ${formatAmount(maxPln)} ${suffix}`;

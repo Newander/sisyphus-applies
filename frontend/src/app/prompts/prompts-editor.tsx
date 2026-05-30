@@ -47,7 +47,7 @@ export function PromptsEditor({ initialPrompts }: { initialPrompts: Prompt[] }) 
       setPrompts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unknown error";
-      setError(`Не удалось сохранить промпт: ${message}`);
+      setError(`Failed to save prompt: ${message}`);
     } finally {
       setIsSaving(false);
     }
@@ -55,7 +55,7 @@ export function PromptsEditor({ initialPrompts }: { initialPrompts: Prompt[] }) 
 
   async function handleCreate() {
     if (!newForm.name.trim() || !newForm.content.trim()) {
-      setError("Название и содержимое обязательны");
+      setError("Name and content are required");
       return;
     }
     setIsSaving(true);
@@ -73,7 +73,7 @@ export function PromptsEditor({ initialPrompts }: { initialPrompts: Prompt[] }) 
       setNewForm(EMPTY_NEW_FORM);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unknown error";
-      setError(`Не удалось создать промпт: ${message}`);
+      setError(`Failed to create prompt: ${message}`);
     } finally {
       setIsSaving(false);
     }
@@ -91,7 +91,7 @@ export function PromptsEditor({ initialPrompts }: { initialPrompts: Prompt[] }) 
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unknown error";
-      setError(`Не удалось удалить промпт: ${message}`);
+      setError(`Failed to delete prompt: ${message}`);
     }
   }
 
@@ -100,8 +100,8 @@ export function PromptsEditor({ initialPrompts }: { initialPrompts: Prompt[] }) 
       <header className="flex flex-col gap-4 rounded-lg border-l-4 border-primary bg-muted p-5">
         <AppNav active="prompts" />
         <div className="flex flex-col gap-2">
-          <p className="text-sm font-medium text-muted-foreground">Управление системными промптами</p>
-          <h1 className="text-3xl font-semibold tracking-normal">Промпты</h1>
+          <p className="text-sm font-medium text-muted-foreground">Manage system prompts</p>
+          <h1 className="text-3xl font-semibold tracking-normal">Prompts</h1>
         </div>
       </header>
 
@@ -116,7 +116,7 @@ export function PromptsEditor({ initialPrompts }: { initialPrompts: Prompt[] }) 
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              Промпты
+              Prompts
             </h2>
             <Button
               size="sm"
@@ -130,12 +130,12 @@ export function PromptsEditor({ initialPrompts }: { initialPrompts: Prompt[] }) 
               }}
             >
               <Plus data-icon="inline-start" />
-              Добавить
+              Add
             </Button>
           </div>
 
           {prompts.length === 0 && !isCreating ? (
-            <p className="text-sm text-muted-foreground">Промптов пока нет.</p>
+            <p className="text-sm text-muted-foreground">No prompts yet.</p>
           ) : null}
 
           {prompts.map((prompt) => (
@@ -168,35 +168,35 @@ export function PromptsEditor({ initialPrompts }: { initialPrompts: Prompt[] }) 
           {isCreating ? (
             <Card>
               <CardHeader>
-                <CardTitle>Новый промпт</CardTitle>
-                <CardDescription>Заполните поля и нажмите «Создать»</CardDescription>
+                <CardTitle>New prompt</CardTitle>
+                <CardDescription>Fill in the fields and click Create</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col gap-5">
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="new-name">Название</Label>
+                    <Label htmlFor="new-name">Name</Label>
                     <Input
                       id="new-name"
-                      placeholder="Уникальное имя промпта"
+                      placeholder="Unique prompt name"
                       value={newForm.name}
                       onChange={(e) => setNewForm((f) => ({ ...f, name: e.target.value }))}
                     />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="new-description">Описание</Label>
+                    <Label htmlFor="new-description">Description</Label>
                     <Input
                       id="new-description"
-                      placeholder="Краткое описание (необязательно)"
+                      placeholder="Brief description (optional)"
                       value={newForm.description}
                       onChange={(e) => setNewForm((f) => ({ ...f, description: e.target.value }))}
                     />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="new-content">Содержимое</Label>
+                    <Label htmlFor="new-content">Content</Label>
                     <Textarea
                       className="min-h-60 font-mono text-sm"
                       id="new-content"
-                      placeholder="Текст промпта..."
+                      placeholder="Prompt text..."
                       value={newForm.content}
                       onChange={(e) => setNewForm((f) => ({ ...f, content: e.target.value }))}
                     />
@@ -212,14 +212,14 @@ export function PromptsEditor({ initialPrompts }: { initialPrompts: Prompt[] }) 
                         if (prompts.length > 0) setSelectedId(prompts[0].id);
                       }}
                     >
-                      Отмена
+                      Cancel
                     </Button>
                     <Button
                       disabled={isSaving}
                       type="button"
                       onClick={() => void handleCreate()}
                     >
-                      {isSaving ? "Создание…" : "Создать"}
+                      {isSaving ? "Creating…" : "Create"}
                     </Button>
                   </div>
                 </div>
@@ -232,7 +232,7 @@ export function PromptsEditor({ initialPrompts }: { initialPrompts: Prompt[] }) 
                   <div className="flex flex-col gap-1">
                     <CardTitle>{selected.name}</CardTitle>
                     <CardDescription className="text-xs">
-                      Обновлён: {new Date(selected.updated_at).toLocaleString("ru-RU")}
+                      Updated: {new Date(selected.updated_at).toLocaleString("en-US")}
                     </CardDescription>
                   </div>
                   <Button
@@ -242,24 +242,24 @@ export function PromptsEditor({ initialPrompts }: { initialPrompts: Prompt[] }) 
                     onClick={() => void handleDelete(selected)}
                   >
                     <Trash2 data-icon="inline-start" />
-                    Удалить
+                    Delete
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col gap-5">
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="edit-description">Описание</Label>
+                    <Label htmlFor="edit-description">Description</Label>
                     <Input
                       defaultValue={selected.description ?? ""}
                       id="edit-description"
                       key={`desc-${selected.id}`}
-                      placeholder="Краткое описание (необязательно)"
+                      placeholder="Brief description (optional)"
                       ref={descriptionRef}
                     />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="edit-content">Содержимое</Label>
+                    <Label htmlFor="edit-content">Content</Label>
                     <Textarea
                       className="min-h-60 font-mono text-sm"
                       defaultValue={selected.content}
@@ -280,14 +280,14 @@ export function PromptsEditor({ initialPrompts }: { initialPrompts: Prompt[] }) 
                       }}
                     >
                       <Plus data-icon="inline-start" />
-                      Добавить новый
+                      Add new
                     </Button>
                     <Button
                       disabled={isSaving}
                       type="button"
                       onClick={() => void handleSave()}
                     >
-                      {isSaving ? "Сохранение…" : "Сохранить"}
+                      {isSaving ? "Saving…" : "Save"}
                     </Button>
                   </div>
                 </div>
@@ -295,7 +295,7 @@ export function PromptsEditor({ initialPrompts }: { initialPrompts: Prompt[] }) 
             </Card>
           ) : (
             <div className="flex h-40 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
-              Выберите промпт слева или создайте новый
+              Select a prompt on the left or create a new one
             </div>
           )}
         </div>

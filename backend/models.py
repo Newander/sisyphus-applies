@@ -228,26 +228,6 @@ class FeatureMemory(Base):
     closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True)
 
 
-class GmailAccount(Base):
-    __tablename__ = "gmail_accounts"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    email_address: Mapped[str] = mapped_column(String(320), unique=True, index=True)
-    history_id: Mapped[str | None] = mapped_column(String(100))
-    connected_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False
-    )
-    last_sync_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
-    )
-
-    messages: Mapped[list["GmailMessage"]] = relationship(back_populates="account")
-
-
 class Prompt(Base):
     __tablename__ = "prompts"
 
@@ -263,28 +243,3 @@ class Prompt(Base):
     )
 
 
-class GmailMessage(Base):
-    __tablename__ = "gmail_messages"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    account_id: Mapped[int] = mapped_column(ForeignKey("gmail_accounts.id"), index=True)
-    gmail_id: Mapped[str] = mapped_column(String(255), unique=True, index=True)
-    thread_id: Mapped[str] = mapped_column(String(255), index=True)
-    history_id: Mapped[str | None] = mapped_column(String(100))
-    sender: Mapped[str | None] = mapped_column(String(1000), index=True)
-    recipients: Mapped[str | None] = mapped_column(Text)
-    subject: Mapped[str | None] = mapped_column(String(1000), index=True)
-    snippet: Mapped[str | None] = mapped_column(Text)
-    body_text: Mapped[str | None] = mapped_column(Text)
-    label_ids: Mapped[list[str] | None] = mapped_column(JSON)
-    internal_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True)
-    received_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True)
-    raw_payload: Mapped[dict | None] = mapped_column(JSON)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
-    )
-
-    account: Mapped[GmailAccount] = relationship(back_populates="messages")

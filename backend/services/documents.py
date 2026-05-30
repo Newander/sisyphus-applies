@@ -261,7 +261,7 @@ def _read_docx_preview(path: Path, line_limit: int) -> DocumentPreview:
             lines=[],
             line_count=0,
             truncated=False,
-            unsupported_reason="Не удалось прочитать DOCX файл.",
+            unsupported_reason="Failed to read DOCX file.",
         )
 
     try:
@@ -271,7 +271,7 @@ def _read_docx_preview(path: Path, line_limit: int) -> DocumentPreview:
             lines=[],
             line_count=0,
             truncated=False,
-            unsupported_reason="Не удалось разобрать текст DOCX файла.",
+            unsupported_reason="Failed to parse DOCX file text.",
         )
 
     namespace = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
@@ -294,7 +294,7 @@ def read_document_preview(path: Path, line_limit: int = PREVIEW_LINES_LIMIT) -> 
             lines=[],
             line_count=0,
             truncated=False,
-            unsupported_reason="Превью доступно только для TXT, MD, RTF и DOCX файлов.",
+            unsupported_reason="Preview is available only for TXT, MD, RTF and DOCX files.",
         )
 
     for encoding in ("utf-8-sig", "utf-8", "cp1251", "latin-1"):
@@ -317,7 +317,7 @@ def read_document_preview(path: Path, line_limit: int = PREVIEW_LINES_LIMIT) -> 
         lines=[],
         line_count=0,
         truncated=False,
-        unsupported_reason="Не удалось прочитать файл как текст.",
+        unsupported_reason="Failed to read file as text.",
     )
 
 

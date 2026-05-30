@@ -25,8 +25,8 @@ pids+=($!)
 "$ROOT/scripts/start-frontend.sh" >"$LOG_DIR/frontend.log" 2>&1 &
 pids+=($!)
 
-echo "Started backend on http://127.0.0.1:8000  (logs: $LOG_DIR/backend.log)"
-echo "Started frontend on http://localhost:3000 (logs: $LOG_DIR/frontend.log)"
+echo "Started backend on http://127.0.0.1:9002  (logs: $LOG_DIR/backend.log)"
+echo "Started frontend on http://localhost:9001 (logs: $LOG_DIR/frontend.log)"
 echo "Started worker in background              (logs: $LOG_DIR/worker.log)"
 echo "Press Ctrl+C to stop all."
 

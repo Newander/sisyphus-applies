@@ -33,7 +33,7 @@ export default function FeaturesPage() {
     () => [
       {
         id: "created_at",
-        header: "Дата",
+        header: "Date",
         accessor: "created_at",
         className: "text-muted-foreground",
         sortValue: (feature) => new Date(feature.created_at),
@@ -41,14 +41,14 @@ export default function FeaturesPage() {
       },
       {
         id: "text",
-        header: "Фича",
+        header: "Feature",
         accessor: "text",
         className: "max-w-md",
         cell: (feature) => <p className="line-clamp-2">{feature.text}</p>,
       },
       {
         id: "page_url",
-        header: "Страница",
+        header: "Page",
         sortValue: (feature) => feature.page_title ?? feature.page_url,
         className: "max-w-sm",
         cell: (feature) => (
@@ -81,7 +81,7 @@ export default function FeaturesPage() {
       setTotalFeatures(page.total);
     } catch (loadError) {
       const message = loadError instanceof Error ? loadError.message : "Unknown error";
-      setError(`Не удалось загрузить сохранённые фичи: ${message}`);
+      setError(`Failed to load saved features: ${message}`);
     } finally {
       setIsLoading(false);
     }
@@ -101,7 +101,7 @@ export default function FeaturesPage() {
       setEditingFeature(null);
     } catch (saveError) {
       const message = saveError instanceof Error ? saveError.message : "Unknown error";
-      setError(`Не удалось сохранить фичу: ${message}`);
+      setError(`Failed to save feature: ${message}`);
     } finally {
       setIsSaving(false);
     }
@@ -119,7 +119,7 @@ export default function FeaturesPage() {
       }
     } catch (closeError) {
       const message = closeError instanceof Error ? closeError.message : "Unknown error";
-      setError(`Не удалось закрыть фичу: ${message}`);
+      setError(`Failed to close feature: ${message}`);
     }
   }
 
@@ -129,8 +129,8 @@ export default function FeaturesPage() {
         <header className="flex flex-col gap-4 rounded-lg border-l-4 border-primary bg-muted p-5">
           <AppNav active="features" />
           <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-muted-foreground">Идеи, сохранённые с экрана</p>
-            <h1 className="text-3xl font-semibold tracking-normal">Фичи</h1>
+            <p className="text-sm font-medium text-muted-foreground">Ideas saved from the screen</p>
+            <h1 className="text-3xl font-semibold tracking-normal">Features</h1>
           </div>
         </header>
 
@@ -142,14 +142,14 @@ export default function FeaturesPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Сохранённые фичи</CardTitle>
-            <CardDescription>{features.length} открытых фич в локальной базе.</CardDescription>
+            <CardTitle>Saved features</CardTitle>
+            <CardDescription>{features.length} open features in the local database.</CardDescription>
           </CardHeader>
           <CardContent>
             <DataTable
               columns={columns}
               data={features}
-              emptyMessage="Открытых фич пока нет."
+              emptyMessage="No open features yet."
               initialSort={{ columnId: "created_at", direction: "desc" }}
               isLoading={isLoading}
               onQueryChange={loadFeatures}
@@ -159,7 +159,7 @@ export default function FeaturesPage() {
                 <>
                   <Button
                     size="icon"
-                    title="Посмотреть"
+                    title="View"
                     type="button"
                     variant="outline"
                     onClick={() => setSelectedFeature(feature)}
@@ -168,7 +168,7 @@ export default function FeaturesPage() {
                   </Button>
                   <Button
                     size="icon"
-                    title="Редактировать"
+                    title="Edit"
                     type="button"
                     variant="outline"
                     onClick={() => setEditingFeature(feature)}
@@ -177,7 +177,7 @@ export default function FeaturesPage() {
                   </Button>
                   <Button
                     size="icon"
-                    title="Закрыть"
+                    title="Close"
                     type="button"
                     variant="destructive"
                     onClick={() => void closeFeature(feature)}
@@ -199,9 +199,9 @@ export default function FeaturesPage() {
         >
           <div className="w-full max-w-2xl rounded-lg border bg-card shadow-lg">
             <div className="flex items-start justify-between gap-4 border-b p-5">
-              <h2 className="text-lg font-semibold tracking-normal">Редактировать фичу</h2>
+              <h2 className="text-lg font-semibold tracking-normal">Edit feature</h2>
               <Button
-                aria-label="Отменить редактирование"
+                aria-label="Cancel editing"
                 size="sm"
                 type="button"
                 variant="ghost"
@@ -212,16 +212,16 @@ export default function FeaturesPage() {
             </div>
             <div className="flex flex-col gap-5 p-5">
               <div className="flex flex-col gap-2">
-                <Label htmlFor="edit-page-title">Заголовок страницы</Label>
+                <Label htmlFor="edit-page-title">Page title</Label>
                 <Input
                   defaultValue={editingFeature.page_title ?? ""}
                   id="edit-page-title"
-                  placeholder="Заголовок страницы (необязательно)"
+                  placeholder="Page title (optional)"
                   ref={editTitleRef}
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="edit-text">Текст фичи</Label>
+                <Label htmlFor="edit-text">Feature text</Label>
                 <Textarea
                   className="min-h-40"
                   defaultValue={editingFeature.text}
@@ -235,14 +235,14 @@ export default function FeaturesPage() {
                   variant="outline"
                   onClick={() => setEditingFeature(null)}
                 >
-                  Отмена
+                  Cancel
                 </Button>
                 <Button
                   disabled={isSaving}
                   type="button"
                   onClick={() => void saveFeature()}
                 >
-                  {isSaving ? "Сохранение…" : "Сохранить"}
+                  {isSaving ? "Saving…" : "Save"}
                 </Button>
               </div>
             </div>
@@ -259,13 +259,13 @@ export default function FeaturesPage() {
           <div className="w-full max-w-5xl rounded-lg border bg-card shadow-lg">
             <div className="flex items-start justify-between gap-4 border-b p-5">
               <div className="flex flex-col gap-1">
-                <h2 className="text-lg font-semibold tracking-normal">Сохранённая фича</h2>
+                <h2 className="text-lg font-semibold tracking-normal">Saved feature</h2>
                 <p className="break-all text-sm text-muted-foreground">
                   {selectedFeature.page_url}
                 </p>
               </div>
               <Button
-                aria-label="Закрыть просмотр"
+                aria-label="Close preview"
                 size="sm"
                 type="button"
                 variant="ghost"
@@ -277,7 +277,7 @@ export default function FeaturesPage() {
             <div className="flex flex-col gap-5 p-5">
               <p className="whitespace-pre-wrap text-sm">{selectedFeature.text}</p>
               <img
-                alt="Скриншот страницы для сохранённой фичи"
+                alt="Page screenshot for saved feature"
                 className="w-full rounded-md border"
                 src={selectedFeature.screenshot_data_url}
               />

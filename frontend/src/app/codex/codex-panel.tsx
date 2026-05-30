@@ -37,7 +37,7 @@ export function CodexPanel({ status }: { status: CodexStatus }) {
 
     try {
       const response = await askCodex(trimmedQuestion, mode, context.trim(), trimmedUrl);
-      setAnswer(response.answer || "Codex CLI вернул пустой ответ.");
+      setAnswer(response.answer || "Codex CLI returned an empty response.");
       setContextSource(response.context_source);
       setWarnings(response.warnings);
     } catch (requestError) {
@@ -53,7 +53,7 @@ export function CodexPanel({ status }: { status: CodexStatus }) {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
       <form className="flex flex-col gap-4" onSubmit={submitQuestion}>
         <fieldset className="flex flex-col gap-2">
-          <legend className="text-sm font-medium">Режим</legend>
+          <legend className="text-sm font-medium">Mode</legend>
           <div className="flex w-fit rounded-md border bg-background p-1">
             <button
               className={cn(
@@ -63,7 +63,7 @@ export function CodexPanel({ status }: { status: CodexStatus }) {
               onClick={() => setMode("text")}
               type="button"
             >
-              Текст
+              Text
             </button>
             <button
               className={cn(
@@ -73,18 +73,18 @@ export function CodexPanel({ status }: { status: CodexStatus }) {
               onClick={() => setMode("url")}
               type="button"
             >
-              Ссылка
+              URL
             </button>
           </div>
         </fieldset>
 
         <label className="flex flex-col gap-2 text-sm font-medium">
-          Вопрос
+          Question
           <textarea
             className="min-h-40 resize-y rounded-md border bg-background px-3 py-2 text-sm font-normal outline-none focus-visible:ring-2 focus-visible:ring-ring"
             maxLength={8000}
             onChange={(event) => setQuestion(event.target.value)}
-            placeholder="Например: где в проекте создаются отклики?"
+            placeholder="E.g.: where are applications created in the project?"
             required
             value={question}
           />
@@ -92,7 +92,7 @@ export function CodexPanel({ status }: { status: CodexStatus }) {
 
         {mode === "url" ? (
           <label className="flex flex-col gap-2 text-sm font-medium">
-            Ссылка для scrape
+            URL to scrape
             <input
               className="h-10 rounded-md border bg-background px-3 py-2 text-sm font-normal outline-none focus-visible:ring-2 focus-visible:ring-ring"
               maxLength={1000}
@@ -105,12 +105,12 @@ export function CodexPanel({ status }: { status: CodexStatus }) {
           </label>
         ) : (
           <label className="flex flex-col gap-2 text-sm font-medium">
-            Дополнительный контекст
+            Additional context
             <textarea
               className="min-h-28 resize-y rounded-md border bg-background px-3 py-2 text-sm font-normal outline-none focus-visible:ring-2 focus-visible:ring-ring"
               maxLength={12000}
               onChange={(event) => setContext(event.target.value)}
-              placeholder="Необязательно: вставь детали задачи, ошибку или ограничение."
+              placeholder="Optional: paste task details, an error, or a constraint."
               value={context}
             />
           </label>
@@ -122,10 +122,10 @@ export function CodexPanel({ status }: { status: CodexStatus }) {
             type="submit"
           >
             <Send data-icon="inline-start" />
-            {isPending ? "Спрашиваю" : mode === "url" ? "Scrape и спросить" : "Спросить Codex"}
+            {isPending ? "Asking" : mode === "url" ? "Scrape and ask" : "Ask Codex"}
           </Button>
           {isPending ? (
-            <span className="text-sm text-muted-foreground">CLI выполняется...</span>
+            <span className="text-sm text-muted-foreground">CLI is running...</span>
           ) : null}
         </div>
       </form>
@@ -133,20 +133,20 @@ export function CodexPanel({ status }: { status: CodexStatus }) {
       <aside className="flex flex-col gap-3 rounded-lg border bg-muted p-4 text-sm">
         <div className="flex items-center gap-2 font-medium">
           <Terminal aria-hidden="true" />
-          Локальный CLI
+          Local CLI
         </div>
         <dl className="flex flex-col gap-2 text-muted-foreground">
           <div className="flex flex-col gap-1">
-            <dt className="font-medium text-foreground">Команда</dt>
+            <dt className="font-medium text-foreground">Command</dt>
             <dd className="break-all font-mono text-xs">{status.command.join(" ")}</dd>
           </div>
           <div className="flex flex-col gap-1">
-            <dt className="font-medium text-foreground">Рабочая папка</dt>
+            <dt className="font-medium text-foreground">Working directory</dt>
             <dd className="break-all font-mono text-xs">{status.cwd}</dd>
           </div>
           <div className="flex flex-col gap-1">
             <dt className="font-medium text-foreground">Timeout</dt>
-            <dd>{status.timeout_seconds} сек.</dd>
+            <dd>{status.timeout_seconds} sec.</dd>
           </div>
         </dl>
       </aside>
@@ -155,14 +155,14 @@ export function CodexPanel({ status }: { status: CodexStatus }) {
         <section className="lg:col-span-2">
           <div className="rounded-lg border bg-card p-5">
             <h2 className="text-base font-semibold tracking-normal">
-              {error ? "Ошибка" : "Ответ Codex"}
+              {error ? "Error" : "Codex response"}
             </h2>
             <pre className="mt-4 max-h-[32rem] overflow-auto whitespace-pre-wrap break-words rounded-md bg-muted p-4 text-sm">
               {error || answer}
             </pre>
             {contextSource && !error ? (
               <p className="mt-3 break-all text-sm text-muted-foreground">
-                Контекст: {contextSource}
+                Context: {contextSource}
               </p>
             ) : null}
             {warnings.length > 0 && !error ? (

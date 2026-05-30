@@ -17,16 +17,16 @@ export default async function DocumentsPage() {
           <AppNav active="documents" />
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div className="flex flex-col gap-2">
-              <p className="text-sm font-medium text-muted-foreground">Файловое хранилище</p>
-              <h1 className="text-3xl font-semibold tracking-normal">Документы</h1>
+              <p className="text-sm font-medium text-muted-foreground">File storage</p>
+              <h1 className="text-3xl font-semibold tracking-normal">Documents</h1>
             </div>
-            <CreateDocumentDialog triggerLabel="Создать документ" />
+            <CreateDocumentDialog triggerLabel="Create document" />
           </div>
         </header>
 
         <Card>
           <CardHeader>
-            <CardTitle>Файлы</CardTitle>
+            <CardTitle>Files</CardTitle>
             <CardDescription className="break-all">
               Storage folder: {dashboard.storage_dir}
             </CardDescription>

@@ -33,7 +33,7 @@ const emptyForm: DocumentForm = {
 };
 
 export function CreateDocumentDialog({
-  triggerLabel = "Создать документ",
+  triggerLabel = "Create document",
   triggerSize,
   triggerVariant,
   iconOnly = false,
@@ -99,7 +99,7 @@ export function CreateDocumentDialog({
     const rawName = form.file_name.trim();
     const text = form.text.trim();
     if (!rawName || !text) {
-      setError("Заполни имя файла и текст документа");
+      setError("Fill in the file name and document text");
       return;
     }
 
@@ -118,7 +118,7 @@ export function CreateDocumentDialog({
       closeDialog();
       router.refresh();
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Не удалось создать документ");
+      setError(error instanceof Error ? error.message : "Failed to create document");
       setIsSubmitting(false);
     }
   }
@@ -146,14 +146,14 @@ export function CreateDocumentDialog({
           <div className="w-full max-w-3xl rounded-lg border bg-card shadow-lg">
             <div className="flex items-start justify-between gap-4 border-b p-5">
               <div className="flex flex-col gap-1">
-                <h2 className="text-lg font-semibold tracking-normal">Новый документ</h2>
+                <h2 className="text-lg font-semibold tracking-normal">New document</h2>
                 <p className="text-sm text-muted-foreground">
-                  Сохраняется как .md или .docx файл в папку документов.
+                  Saved as a .md or .docx file to the documents folder.
                 </p>
               </div>
               <Button type="button" variant="ghost" size="sm" onClick={closeDialog}>
                 <X data-icon="inline-start" />
-                Закрыть
+                Close
               </Button>
             </div>
 
@@ -166,7 +166,7 @@ export function CreateDocumentDialog({
 
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="flex flex-col gap-2 text-sm font-medium">
-                  Имя файла
+                  File name
                   <input
                     className="h-10 rounded-md border bg-background px-3 text-sm"
                     placeholder="My CV"
@@ -177,7 +177,7 @@ export function CreateDocumentDialog({
                 </label>
 
                 <label className="flex flex-col gap-2 text-sm font-medium">
-                  Тип
+                  Type
                   <select
                     className="h-10 rounded-md border bg-background px-3 text-sm"
                     value={form.document_type}
@@ -189,14 +189,14 @@ export function CreateDocumentDialog({
                     }
                   >
                     <option value="cv">CV</option>
-                    <option value="cover_letter">Сопроводительное письмо</option>
-                    <option value="other">Другое</option>
+                    <option value="cover_letter">Cover letter</option>
+                    <option value="other">Other</option>
                   </select>
                 </label>
               </div>
 
               <div className="flex flex-col gap-2 text-sm font-medium">
-                Формат файла
+                File format
                 <div className="flex gap-2">
                   <button
                     type="button"
@@ -216,12 +216,12 @@ export function CreateDocumentDialog({
               </div>
 
               <label className="flex flex-col gap-2 text-sm font-medium">
-                Компания
+                Company
                 <input
                   className="h-10 rounded-md border bg-background px-3 text-sm"
                   disabled={isLoadingCompanies}
                   list="document-company-options"
-                  placeholder="Необязательно"
+                  placeholder="Optional"
                   value={form.company_name}
                   onChange={(event) => updateCompanyName(event.target.value)}
                 />
@@ -231,12 +231,12 @@ export function CreateDocumentDialog({
                   ))}
                 </datalist>
                 <span className="text-xs font-normal text-muted-foreground">
-                  Привязка сохранится, если выбрана компания из списка.
+                  The link will be saved if a company is selected from the list.
                 </span>
               </label>
 
               <label className="flex flex-col gap-2 text-sm font-medium">
-                Текст
+                Text
                 <textarea
                   className="min-h-72 rounded-md border bg-background px-3 py-2 text-sm"
                   required
@@ -247,11 +247,11 @@ export function CreateDocumentDialog({
 
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={closeDialog}>
-                  Отменить
+                  Cancel
                 </Button>
                 <Button disabled={isSubmitting}>
                   <FilePlus2 data-icon="inline-start" />
-                  {isSubmitting ? "Сохранение..." : "Сохранить документ"}
+                  {isSubmitting ? "Saving..." : "Save document"}
                 </Button>
               </div>
             </form>

@@ -5,4 +5,4 @@ source "$(dirname "$0")/_common.sh"
 cd "$ROOT"
 
 export PYTHONPATH="$ROOT"
-exec "$PYTHON" -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload
+exec "$PYTHON" -m uvicorn backend.main:app --host 127.0.0.1 --port 9002 --reload --reload-dir backend
