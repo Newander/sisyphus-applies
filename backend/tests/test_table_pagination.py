@@ -1,5 +1,6 @@
 from datetime import UTC, datetime
 
+from fastapi import BackgroundTasks
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -8,6 +9,7 @@ from backend.api.applications import (
     list_applications_page,
     update_application_rejection,
 )
+from backend.config import Settings
 from backend.api.companies import list_companies_page
 from backend.db import Base
 from backend.models import ApplicationStatus, Company, JobApplication
@@ -99,6 +101,8 @@ def test_application_create_persists_seniority_as_field() -> None:
             notes="Notes without seniority",
             applied_at=datetime(2026, 5, 1, tzinfo=UTC),
         ),
+        background_tasks=BackgroundTasks(),
+        settings=Settings(_env_file=None),
         session=session,
     )
 

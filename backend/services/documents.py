@@ -322,9 +322,18 @@ def read_document_preview(path: Path, line_limit: int = PREVIEW_LINES_LIMIT) -> 
 
 
 def send_document_to_recycle_bin(path: Path) -> None:
-    if sys.platform != "win32":
-        raise RuntimeError("Recycle bin deletion is only supported on Windows")
+    metadata_path = document_metadata_path(path)
 
+    if sys.platform == "win32":
+        _windows_recycle(path)
+    else:
+        path.unlink()
+
+    if metadata_path.exists():
+        metadata_path.unlink()
+
+
+def _windows_recycle(path: Path) -> None:
     from ctypes import wintypes
 
     class SHFILEOPSTRUCTW(ctypes.Structure):
@@ -342,14 +351,8 @@ def send_document_to_recycle_bin(path: Path) -> None:
     operation = SHFILEOPSTRUCTW()
     operation.wFunc = 3  # FO_DELETE
     operation.pFrom = f"{path}\0\0"
-    operation.fFlags = (
-        0x0040 | 0x0010 | 0x0400
-    )  # FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_NOERRORUI
+    operation.fFlags = 0x0040 | 0x0010 | 0x0400  # FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_NOERRORUI
 
     result = ctypes.windll.shell32.SHFileOperationW(ctypes.byref(operation))
     if result != 0 or operation.fAnyOperationsAborted:
         raise RuntimeError(f"Failed to move document to recycle bin: {result}")
-
-    metadata_path = document_metadata_path(path)
-    if metadata_path.exists():
-        metadata_path.unlink()

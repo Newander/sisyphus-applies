@@ -1,68 +1,167 @@
-# Local Job Search Tracker
+# Sisyphus Applies
 
-A local single-user app for tracking a job search. Stores everything on your own machine — no cloud, no auth, no SaaS.
+A local-first, single-user job search tracker with an embedded AI assistant powered by a local LLM. No cloud, no API keys, no data leaving your machine.
 
-## What it does
+Built as a portfolio project demonstrating a full-stack AI application with RAG, streaming inference, and tool use — all running entirely offline.
 
-- Track companies and job applications with a full status history.
-- Attach documents (CV, cover letters) to applications.
-- Extract job posting data from a URL or pasted text via the Codex CLI bridge.
-- Generate cover letters through the same bridge.
-- Dashboard with application stats, timeline chart, and recent activity.
+---
+
+## Features
+
+**Job search tracking**
+- Companies and applications with a full status history and transition graph
+- Document storage — attach CVs and cover letters to applications
+- Dashboard with application timeline, stats, and recent activity
+
+**Local AI assistant**
+- Ask questions about job postings — paste text or give a URL to scrape
+- Answers draw on your own stored data via **RAG** (Retrieval-Augmented Generation)
+- **Web search** via tool use (DuckDuckGo) for live company research
+- **Streaming responses** — text appears token-by-token via SSE
+- **Cover letter generation** from application data
+- Provider abstraction — swap between local Ollama and Codex CLI via one env var
+
+**AI infrastructure**
+- Embeddings with `nomic-embed-text` stored in **pgvector**
+- Automatic indexing of applications, companies, and uploaded documents on save
+- Startup check indexes any records that were missed
+- Reindex button in the UI
+
+---
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                     Browser (9001)                       │
+│              Next.js 15 · React 19 · shadcn/ui           │
+└───────────────────────┬─────────────────────────────────┘
+                        │ HTTP / SSE
+┌───────────────────────▼─────────────────────────────────┐
+│                   Backend (9002)                          │
+│              FastAPI · SQLAlchemy 2 · psycopg3            │
+│                                                          │
+│  ┌─────────────┐  ┌──────────────┐  ┌────────────────┐  │
+│  │  REST API   │  │  RAG service │  │  LLM provider  │  │
+│  │ /api/...    │  │  pgvector    │  │  abstraction   │  │
+│  └─────────────┘  └──────┬───────┘  └───────┬────────┘  │
+└─────────────────────────┼───────────────────┼───────────┘
+                          │                   │
+              ┌───────────▼───┐     ┌─────────▼──────────┐
+              │  PostgreSQL   │     │   Ollama (11434)    │
+              │  + pgvector   │     │  qwen2.5:7b         │
+              │  sisyphus_    │     │  nomic-embed-text   │
+              │  applies      │     │  + web search tool  │
+              └───────────────┘     └────────────────────┘
+```
+
+**Three processes run together:**
+- **Frontend** — Next.js dev server at `http://localhost:9001`
+- **Backend** — FastAPI + Alembic at `http://127.0.0.1:9002`
+- **Worker** — APScheduler background jobs
+
+---
 
 ## Tech stack
 
-- **Frontend** — Next.js 15, React 19, TypeScript, Tailwind CSS, shadcn/ui
-- **Backend** — FastAPI, SQLAlchemy 2, psycopg3, Alembic
-- **Database** — PostgreSQL (local)
-- **Worker** — APScheduler
+| Layer | Technology | Why |
+|---|---|---|
+| Frontend | Next.js 15, React 19, TypeScript | App Router, Server Components, type safety |
+| UI | Tailwind CSS, shadcn/ui | Consistent design system, no runtime CSS |
+| Backend | FastAPI, Python 3.12 | Async-first, automatic OpenAPI, type hints |
+| ORM | SQLAlchemy 2 + psycopg3 | Typed queries, async sessions, pgvector support |
+| Migrations | Alembic | Schema versioning, auto-generate from models |
+| Database | PostgreSQL + pgvector | Relational + vector search in one place |
+| LLM runtime | Ollama | Local model serving with tool use and streaming |
+| Embeddings | nomic-embed-text | 768-dim, fast, runs on CPU or GPU |
+| Web scraping | Playwright | JavaScript-rendered pages |
+
+---
 
 ## Prerequisites
 
-- Python 3.12+
-- Node.js 18+
-- PostgreSQL 14+
+- **Python 3.12+**
+- **Node.js 18+**
+- **PostgreSQL 14+**
+- **Ollama** — [ollama.com](https://ollama.com)
 
-## Local run
+---
 
-### First time
+## Quick start
 
-**Linux / macOS**
-```bash
-./scripts/setup.sh
-```
-
-**Windows (PowerShell)**
-```powershell
-.\scripts\setup.ps1
-```
-
-The script checks prerequisites, creates `.env` from `.env.example`, installs dependencies, applies migrations, and optionally seeds demo data. Edit `.env` beforehand if your PostgreSQL credentials differ from the defaults (`postgres/postgres` on `localhost:5432`).
-
-### After setup
+### 1. Clone and set up
 
 ```bash
-./scripts/start-all.sh        # Linux / macOS
-.\scripts\start-all.ps1       # Windows
+git clone https://github.com/newander/sisyphus-applies.git
+cd sisyphus-applies
+./scripts/setup.sh          # Linux / macOS
+.\scripts\setup.ps1         # Windows (PowerShell)
 ```
 
-`start-all` launches the backend, worker, and frontend in the background and writes logs to `logs/`. Ctrl+C stops all three.
+The setup script checks prerequisites, creates `.env` from `.env.example`, installs Python and Node dependencies, applies database migrations, and optionally seeds demo data.
 
-Frontend: `http://localhost:9001` · Backend API: `http://127.0.0.1:9002`
+Edit `.env` if your PostgreSQL credentials differ from the defaults (`postgres/postgres` on `localhost:5432`).
 
-## Codex bridge
+### 2. Set up the AI components
 
-`POST /api/codex/ask` spawns the local Codex CLI from the project root, passes a prompt via stdin, and returns stdout. Two modes:
+```bash
+./scripts/setup-ai.sh
+```
 
-- `text` — pass context directly.
-- `url` — scrape visible text from the given URL first, then pass it to Codex.
+Installs Ollama, pulls `qwen2.5:7b` and `nomic-embed-text`, enables the `pgvector` extension.
 
-Configured via `.env`:
+### 3. Run
+
+```bash
+./scripts/start-all.sh      # Linux / macOS
+.\scripts\start-all.ps1     # Windows
+```
+
+Opens at **http://localhost:9001**
+
+---
+
+## Configuration
+
+Key `.env` variables:
 
 ```dotenv
-CODEX_CLI_COMMAND=codex
-CODEX_CLI_ARGS=exec -
-CODEX_CLI_TIMEOUT_SECONDS=120
+# LLM provider: "ollama" (local) or "codex" (Codex CLI)
+LLM_PROVIDER=ollama
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=qwen2.5:7b
+OLLAMA_EMBED_MODEL=nomic-embed-text
+OLLAMA_NUM_CTX=32768
+
+# Web search via DuckDuckGo tool use
+WEB_SEARCH_ENABLED=true
 ```
 
-On Windows, if `codex.exe` from WindowsApps is not allowed to run, point `CODEX_CLI_COMMAND` to a working binary or a PowerShell wrapper.
+---
+
+## Development
+
+```bash
+# Backend (with auto-reload)
+.venv/bin/uvicorn backend.main:app --host 127.0.0.1 --port 9002 --reload --reload-dir backend
+
+# Frontend
+cd frontend && npm run dev
+
+# Migrations
+make alembic-upgrade
+make alembic-revision m="describe change"
+
+# Lint
+.venv/bin/ruff check backend/
+cd frontend && npm run lint
+
+# Tests
+.venv/bin/pytest backend/tests/
+```
+
+---
+
+## License
+
+[MIT](LICENSE)

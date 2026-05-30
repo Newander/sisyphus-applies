@@ -9,10 +9,12 @@ from backend.services.application_scraper import (
 )
 
 
-def test_build_job_extraction_prompt_loads_configured_prompt_file(tmp_path: Path) -> None:
-    prompt_file = tmp_path / "prompt.md"
-    prompt_file.write_text("Return JSON only.", encoding="utf-8")
-    settings = Settings(_env_file=None, codex_job_extraction_prompt_file=prompt_file)
+def test_build_job_extraction_prompt_appends_raw_text(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "backend.services.application_scraper.get_prompt_content",
+        lambda _name: "Return JSON only.",
+    )
+    settings = Settings(_env_file=None)
 
     prompt = build_job_extraction_prompt("Senior Python Engineer at Acme", settings)
 

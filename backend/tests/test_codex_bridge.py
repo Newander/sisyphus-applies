@@ -14,6 +14,7 @@ from backend.services.codex_bridge import ask_codex, build_codex_prompt, resolve
 def make_settings(args: str) -> Settings:
     return Settings(
         _env_file=None,
+        llm_provider="codex",
         codex_cli_command=sys.executable,
         codex_cli_args=args,
         codex_cli_timeout_seconds=5,
