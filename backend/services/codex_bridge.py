@@ -1,9 +1,12 @@
 import logging
 from dataclasses import dataclass
 
+from sqlalchemy.orm import Session
+
 from backend.config import Settings
-from backend.connectors.codex_cli import CodexCliError, get_codex_cli_connector
+from backend.connectors.llm import LLMError, get_llm_provider
 from backend.schemas import CodexAskRequest, CodexAskResponse
+from backend.services.rag import build_rag_context
 from backend.services.application_scraper import (
     MAX_RAW_TEXT_CHARS,
     scrape_rendered_text,
@@ -14,7 +17,7 @@ from backend.services.prompts import get_prompt_content
 logger = logging.getLogger(__name__)
 
 
-CodexBridgeError = CodexCliError
+CodexBridgeError = LLMError
 
 
 @dataclass(frozen=True)
@@ -38,15 +41,15 @@ def build_codex_prompt_from_template(
     question: str,
     context: str | None,
     context_source: str,
+    rag_context: str | None = None,
 ) -> str:
+    parts = [template]
+    if rag_context:
+        parts.append(rag_context)
     if context:
-        return (
-            f"{template}\n\n"
-            f"Context source: {context_source}\n\n"
-            f"Additional context:\n{context}\n\n"
-            f"Question:\n{question}"
-        )
-    return f"{template}\n\nQuestion:\n{question}"
+        parts.append(f"Context source: {context_source}\n\nAdditional context:\n{context}")
+    parts.append(f"Question:\n{question}")
+    return "\n\n".join(parts)
 
 
 async def resolve_codex_context(settings: Settings, request: CodexAskRequest) -> CodexContext:
@@ -66,18 +69,28 @@ async def resolve_codex_context(settings: Settings, request: CodexAskRequest) ->
     return CodexContext(text=request.context, source="manual text", warnings=[])
 
 
-async def ask_codex(settings: Settings, request: CodexAskRequest) -> CodexAskResponse:
+async def ask_codex(
+    settings: Settings, request: CodexAskRequest, session: Session | None = None
+) -> CodexAskResponse:
     context = await resolve_codex_context(settings, request)
+
+    rag_context = None
+    if session is not None and settings.llm_provider == "ollama":
+        try:
+            rag_context = await build_rag_context(request.question, settings, session)
+        except Exception as exc:
+            logger.warning("RAG context retrieval failed: %s", exc)
+
     prompt = build_codex_prompt_from_template(
         template=get_prompt_content("codex_bridge"),
         question=request.question,
         context=context.text,
         context_source=context.source,
+        rag_context=rag_context,
     )
-    result = await get_codex_cli_connector(settings).send(prompt)
+    result = await get_llm_provider(settings).ask(prompt)
     return CodexAskResponse(
-        answer=result.stdout,
-        stderr=result.stderr,
+        answer=result.content,
         context_source=context.source,
         warnings=context.warnings,
     )

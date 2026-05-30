@@ -18,6 +18,7 @@ from backend.services.documents import (
     resolve_storage_document_path,
     send_document_to_recycle_bin,
 )
+from backend.services.rag import delete_document_index, index_document
 from backend.services.ssh_sync import (
     make_sync_config,
     push_file,
@@ -109,6 +110,9 @@ def create_document(
         raise HTTPException(status_code=409, detail=str(error)) from error
 
     logger.info("Document created path=%s", document.path)
+    background_tasks.add_task(
+        index_document, document.id, Path(document.path), settings, session
+    )
     sync_config = make_sync_config(settings)
     if sync_config is not None:
         relative = Path(document.path).relative_to(settings.storage_dir).as_posix()
@@ -152,6 +156,7 @@ def delete_document(
     document_id: str,
     background_tasks: BackgroundTasks,
     settings: Annotated[Settings, Depends(get_settings)],
+    session: Annotated[Session, Depends(get_session)],
 ) -> Response:
     logger.info(
         "Deleting document document_id=%s storage_dir=%s",
@@ -175,6 +180,7 @@ def delete_document(
         )
         raise HTTPException(status_code=501, detail=str(exc)) from exc
 
+    delete_document_index(document_id, session)
     remove_from_manifest(settings.storage_dir, relative)
     sync_config = make_sync_config(settings)
     if sync_config is not None:

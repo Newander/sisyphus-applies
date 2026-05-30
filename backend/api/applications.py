@@ -2,11 +2,12 @@ import logging
 from datetime import UTC, datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Response, status
 from sqlalchemy import asc, desc, func, or_, select
 from sqlalchemy.orm import Session
 
 from backend.config import Settings, get_settings
+from backend.services.rag import delete_document_index, index_application
 from backend.db import get_session
 from backend.models import (
     APPLICATION_FLOW,
@@ -317,6 +318,8 @@ def list_applications_page(
 @router.post("", response_model=ApplicationRead, status_code=status.HTTP_201_CREATED)
 def create_application(
     payload: ApplicationCreate,
+    background_tasks: BackgroundTasks,
+    settings: Annotated[Settings, Depends(get_settings)],
     session: Annotated[Session, Depends(get_session)],
 ) -> ApplicationRead:
     logger.info(
@@ -364,6 +367,7 @@ def create_application(
     )
     session.commit()
     session.refresh(application)
+    background_tasks.add_task(index_application, application.id, settings, session)
     logger.info(
         "Application created application_id=%s company_id=%s status=%s",
         application.id,
@@ -390,6 +394,8 @@ def get_application(
 def update_application(
     application_id: int,
     payload: ApplicationUpdateRequest,
+    background_tasks: BackgroundTasks,
+    settings: Annotated[Settings, Depends(get_settings)],
     session: Annotated[Session, Depends(get_session)],
 ) -> ApplicationRead:
     logger.info(
@@ -451,6 +457,7 @@ def update_application(
 
     session.commit()
     session.refresh(application)
+    background_tasks.add_task(index_application, application.id, settings, session)
     logger.info("Application updated application_id=%s", application.id)
     return to_application_read(application)
 
@@ -500,6 +507,7 @@ def delete_application(
         logger.warning("Application delete target not found application_id=%s", application_id)
         raise HTTPException(status_code=404, detail="Application not found")
 
+    delete_document_index(f"app:{application_id}", session)
     session.delete(application)
     session.commit()
     logger.info("Application deleted application_id=%s", application_id)

@@ -1,13 +1,15 @@
 import logging
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Response, status
 from sqlalchemy import asc, desc, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from backend.config import Settings, get_settings
 from backend.db import get_session
 from backend.models import Company, JobApplication
+from backend.services.rag import delete_document_index, index_company
 from backend.schemas import CompanyCreate, CompanyRead, CompanyUpdate, Page
 
 router = APIRouter(prefix="/api/companies", tags=["companies"])
@@ -91,6 +93,8 @@ def list_companies_page(
 @router.post("", response_model=CompanyRead, status_code=status.HTTP_201_CREATED)
 def create_company(
     payload: CompanyCreate,
+    background_tasks: BackgroundTasks,
+    settings: Annotated[Settings, Depends(get_settings)],
     session: Annotated[Session, Depends(get_session)],
 ) -> CompanyRead:
     logger.info("Creating company name=%s website=%s", payload.name, payload.website)
@@ -105,6 +109,7 @@ def create_company(
             status_code=409, detail="Company with this name already exists"
         ) from error
     session.refresh(company)
+    background_tasks.add_task(index_company, company.id, settings, session)
     logger.info("Company created company_id=%s name=%s", company.id, company.name)
     return to_company_read(company)
 
@@ -133,6 +138,8 @@ def get_company(
 def update_company(
     company_id: int,
     payload: CompanyUpdate,
+    background_tasks: BackgroundTasks,
+    settings: Annotated[Settings, Depends(get_settings)],
     session: Annotated[Session, Depends(get_session)],
 ) -> CompanyRead:
     logger.info("Updating company company_id=%s name=%s", company_id, payload.name)
@@ -153,6 +160,7 @@ def update_company(
             status_code=409, detail="Company with this name already exists"
         ) from error
     session.refresh(company)
+    background_tasks.add_task(index_company, company.id, settings, session)
     logger.info("Company updated company_id=%s name=%s", company.id, company.name)
     return get_company(company.id, session)
 
@@ -182,6 +190,7 @@ def delete_company(
         )
         raise HTTPException(status_code=409, detail="Company has applications")
 
+    delete_document_index(f"company:{company_id}", session)
     session.delete(company)
     session.commit()
     logger.info("Company deleted company_id=%s", company_id)

@@ -29,6 +29,15 @@ class Settings(BaseSettings):
         default=Path("backend/prompts/job_post_extraction.md")
     )
 
+    llm_provider: str = "ollama"
+    ollama_base_url: str = "http://localhost:11434"
+    ollama_model: str = "qwen2.5:7b"
+    ollama_embed_model: str = "nomic-embed-text"
+    ollama_num_ctx: int = 32768
+    ollama_timeout_seconds: int = 120
+    web_search_enabled: bool = True
+    web_search_max_results: int = 5
+
     ssh_sync_host: str | None = None
     ssh_sync_port: int = 22
     ssh_sync_user: str | None = None

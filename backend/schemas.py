@@ -93,10 +93,10 @@ class DashboardResponse(BaseModel):
     timeline: list[TimelinePoint]
 
 
-class CodexStatusResponse(BaseModel):
-    command: list[str]
-    cwd: str
+class LLMStatusResponse(BaseModel):
+    provider: str
     timeout_seconds: int
+    info: dict[str, str]
 
 
 class CodexAskRequest(BaseModel):

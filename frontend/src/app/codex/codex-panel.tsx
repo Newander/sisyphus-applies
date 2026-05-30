@@ -6,11 +6,11 @@ import { useState } from "react";
 
 import { AiLoader } from "@/components/ai-loader";
 import { Button } from "@/components/ui/button";
-import type { CodexStatus } from "@/lib/api";
+import type { LLMStatus } from "@/lib/api";
 import { askCodex } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
-export function CodexPanel({ status }: { status: CodexStatus }) {
+export function CodexPanel({ status }: { status: LLMStatus }) {
   const [mode, setMode] = useState<"text" | "url">("text");
   const [question, setQuestion] = useState("");
   const [context, setContext] = useState("");
@@ -133,17 +133,15 @@ export function CodexPanel({ status }: { status: CodexStatus }) {
       <aside className="flex flex-col gap-3 rounded-lg border bg-muted p-4 text-sm">
         <div className="flex items-center gap-2 font-medium">
           <Terminal aria-hidden="true" />
-          Local CLI
+          {status.provider}
         </div>
         <dl className="flex flex-col gap-2 text-muted-foreground">
-          <div className="flex flex-col gap-1">
-            <dt className="font-medium text-foreground">Command</dt>
-            <dd className="break-all font-mono text-xs">{status.command.join(" ")}</dd>
-          </div>
-          <div className="flex flex-col gap-1">
-            <dt className="font-medium text-foreground">Working directory</dt>
-            <dd className="break-all font-mono text-xs">{status.cwd}</dd>
-          </div>
+          {Object.entries(status.info).map(([key, value]) => (
+            <div className="flex flex-col gap-1" key={key}>
+              <dt className="capitalize font-medium text-foreground">{key}</dt>
+              <dd className="break-all font-mono text-xs">{value}</dd>
+            </div>
+          ))}
           <div className="flex flex-col gap-1">
             <dt className="font-medium text-foreground">Timeout</dt>
             <dd>{status.timeout_seconds} sec.</dd>

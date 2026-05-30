@@ -303,10 +303,10 @@ export type ApplicationScrapePreview = {
   warnings: string[];
 };
 
-export type CodexStatus = {
-  command: string[];
-  cwd: string;
+export type LLMStatus = {
+  provider: string;
   timeout_seconds: number;
+  info: Record<string, string>;
 };
 
 export type CodexAskResponse = {
@@ -326,7 +326,7 @@ export type FeatureMemory = {
   closed_at: string | null;
 };
 
-export async function getCodexStatus(): Promise<CodexStatus> {
+export async function getCodexStatus(): Promise<LLMStatus> {
   const response = await fetch(`${apiBaseUrl}/api/codex/status`, {
     cache: "no-store",
   });
@@ -575,4 +575,13 @@ export async function generateCoverLetter(payload: CoverLetterRequest): Promise<
 
   const data = await response.json();
   return data.content;
+}
+
+export async function triggerReindex(): Promise<string> {
+  const response = await fetch(`${apiBaseUrl}/api/rag/reindex`, {
+    method: "POST",
+  });
+  if (!response.ok) throw new Error(`Reindex failed: ${response.status}`);
+  const data = await response.json();
+  return data.message;
 }

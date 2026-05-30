@@ -1,5 +1,6 @@
 import { AppNav } from "@/components/app-nav";
 import { CreateDocumentDialog } from "@/components/create-document-dialog";
+import { ReindexButton } from "@/components/reindex-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getDashboard, getDocumentsPage } from "@/lib/api";
 import { DocumentsTable } from "./documents-table";
@@ -20,7 +21,10 @@ export default async function DocumentsPage() {
               <p className="text-sm font-medium text-muted-foreground">File storage</p>
               <h1 className="text-3xl font-semibold tracking-normal">Documents</h1>
             </div>
-            <CreateDocumentDialog triggerLabel="Create document" />
+            <div className="flex gap-2">
+              <ReindexButton />
+              <CreateDocumentDialog triggerLabel="Create document" />
+            </div>
           </div>
         </header>
 

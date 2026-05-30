@@ -18,16 +18,15 @@ cleanup() {
 }
 trap cleanup INT TERM EXIT
 
-"$ROOT/scripts/start-backend.sh"  >"$LOG_DIR/backend.log"  2>&1 &
+"$ROOT/scripts/start-backend.sh"  > >(sed 's/^/[backend]  /' | tee "$LOG_DIR/backend.log") 2>&1 &
 pids+=($!)
-"$ROOT/scripts/start-worker.sh"   >"$LOG_DIR/worker.log"   2>&1 &
+"$ROOT/scripts/start-worker.sh"   > >(sed 's/^/[worker]   /' | tee "$LOG_DIR/worker.log")  2>&1 &
 pids+=($!)
-"$ROOT/scripts/start-frontend.sh" >"$LOG_DIR/frontend.log" 2>&1 &
+"$ROOT/scripts/start-frontend.sh" > >(sed 's/^/[frontend] /' | tee "$LOG_DIR/frontend.log") 2>&1 &
 pids+=($!)
 
-echo "Started backend on http://127.0.0.1:9002  (logs: $LOG_DIR/backend.log)"
-echo "Started frontend on http://localhost:9001 (logs: $LOG_DIR/frontend.log)"
-echo "Started worker in background              (logs: $LOG_DIR/worker.log)"
-echo "Press Ctrl+C to stop all."
+echo "[start-all] backend  → http://127.0.0.1:9002"
+echo "[start-all] frontend → http://localhost:9001"
+echo "[start-all] Press Ctrl+C to stop all."
 
 wait

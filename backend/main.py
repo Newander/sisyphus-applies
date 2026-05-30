@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import time
 from typing import Annotated
@@ -14,6 +15,7 @@ from backend.api.companies import router as companies_router
 from backend.api.documents import router as documents_router
 from backend.api.feature_memories import router as feature_memories_router
 from backend.api.prompts import router as prompts_router
+from backend.api.rag import router as rag_router
 from backend.config import Settings, get_settings
 from backend.db import get_session
 from backend.logging_config import configure_logging
@@ -34,6 +36,7 @@ app.include_router(documents_router)
 app.include_router(feature_memories_router)
 app.include_router(codex_router)
 app.include_router(prompts_router)
+app.include_router(rag_router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -81,13 +84,32 @@ async def log_requests(request: Request, call_next) -> Response:
     return response
 
 
+async def _rag_startup_check() -> None:
+    from backend.db import SessionLocal
+    from backend.services.rag import index_missing
+
+    logger.info("RAG startup check started")
+    try:
+        with SessionLocal() as session:
+            counts = await index_missing(settings, session)
+            total = sum(counts.values())
+            if total:
+                logger.info("RAG startup indexed missing records counts=%s", counts)
+            else:
+                logger.info("RAG startup check: everything already indexed")
+    except Exception as exc:
+        logger.warning("RAG startup check failed (Ollama may not be ready): %s", exc)
+
+
 @app.on_event("startup")
-def on_startup() -> None:
+async def on_startup() -> None:
     logger.info("Backend startup storage_dir=%s", settings.storage_dir)
     settings.storage_dir.mkdir(parents=True, exist_ok=True)
     upgrade_database()
     seed_default_prompts()
     logger.info("Backend startup complete")
+    if settings.llm_provider == "ollama":
+        asyncio.create_task(_rag_startup_check())
 
 
 @app.get("/health")
