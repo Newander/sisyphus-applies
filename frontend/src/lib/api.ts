@@ -366,6 +366,56 @@ export async function askCodex(
   return response.json();
 }
 
+export async function streamCodexAsk(
+  question: string,
+  mode: "text" | "url",
+  context: string | undefined,
+  contextUrl: string | undefined,
+  onChunk: (chunk: string) => void,
+  onDone: (contextSource: string, warnings: string[]) => void,
+  signal?: AbortSignal,
+): Promise<void> {
+  const response = await fetch(`${apiBaseUrl}/api/codex/ask/stream`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question, mode, context: context || null, context_url: contextUrl || null }),
+    signal,
+  });
+
+  if (!response.ok) {
+    const payload = await response.json().catch(() => null);
+    throw new Error(`Stream failed: ${response.status}${payload?.detail ? `: ${payload.detail}` : ""}`);
+  }
+
+  const reader = response.body!.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+
+    for (const line of lines) {
+      if (!line.startsWith("data: ")) continue;
+      const raw = line.slice(6).trim();
+      if (!raw) continue;
+      try {
+        const msg = JSON.parse(raw) as Record<string, unknown>;
+        if (typeof msg.content === "string") onChunk(msg.content);
+        if (msg.done) onDone(String(msg.context_source ?? ""), (msg.warnings as string[]) ?? []);
+        if (msg.error) throw new Error(String(msg.error));
+      } catch (err) {
+        if (err instanceof SyntaxError) continue;
+        throw err;
+      }
+    }
+  }
+}
+
 export async function createFeatureMemory(payload: {
   text: string;
   page_url: string;

@@ -69,18 +69,16 @@ async def resolve_codex_context(settings: Settings, request: CodexAskRequest) ->
     return CodexContext(text=request.context, source="manual text", warnings=[])
 
 
-async def ask_codex(
-    settings: Settings, request: CodexAskRequest, session: Session | None = None
-) -> CodexAskResponse:
+async def _prepare(
+    settings: Settings, request: CodexAskRequest, session: Session | None
+) -> tuple[str, CodexContext]:
     context = await resolve_codex_context(settings, request)
-
     rag_context = None
     if session is not None and settings.llm_provider == "ollama":
         try:
             rag_context = await build_rag_context(request.question, settings, session)
         except Exception as exc:
             logger.warning("RAG context retrieval failed: %s", exc)
-
     prompt = build_codex_prompt_from_template(
         template=get_prompt_content("codex_bridge"),
         question=request.question,
@@ -88,9 +86,22 @@ async def ask_codex(
         context_source=context.source,
         rag_context=rag_context,
     )
+    return prompt, context
+
+
+async def ask_codex(
+    settings: Settings, request: CodexAskRequest, session: Session | None = None
+) -> CodexAskResponse:
+    prompt, context = await _prepare(settings, request, session)
     result = await get_llm_provider(settings).ask(prompt)
     return CodexAskResponse(
         answer=result.content,
         context_source=context.source,
         warnings=context.warnings,
     )
+
+
+async def stream_codex(settings: Settings, request: CodexAskRequest, session: Session | None = None):
+    prompt, _ = await _prepare(settings, request, session)
+    async for chunk in get_llm_provider(settings).stream(prompt):
+        yield chunk

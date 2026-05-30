@@ -35,6 +35,10 @@ class LLMProvider(ABC):
     @abstractmethod
     async def ask(self, prompt: str) -> LLMResponse: ...
 
+    async def stream(self, prompt: str):
+        result = await self.ask(prompt)
+        yield result.content
+
 
 class CodexProvider(LLMProvider):
     def __init__(self, settings: "Settings") -> None:  # type: ignore[name-defined]
@@ -152,6 +156,49 @@ class OllamaProvider(LLMProvider):
             raise LLMError(f"Ollama request failed: {exc}") from exc
 
         raise LLMError("Exceeded maximum tool call iterations")
+
+    async def stream(self, prompt: str):
+        tools = self._tools()
+        messages: list = [{"role": "user", "content": prompt}]
+
+        try:
+            for _ in range(_MAX_TOOL_ITERATIONS):
+                accumulated_content = ""
+                tool_calls = None
+
+                async for chunk in await self._client.chat(
+                    model=self._model,
+                    messages=messages,
+                    tools=tools,
+                    stream=True,
+                    options={"num_ctx": self._num_ctx},
+                ):
+                    if chunk.message.content:
+                        accumulated_content += chunk.message.content
+                        yield chunk.message.content
+                    if chunk.message.tool_calls:
+                        tool_calls = chunk.message.tool_calls
+
+                if not tool_calls:
+                    return
+
+                messages.append({
+                    "role": "assistant",
+                    "content": accumulated_content,
+                    "tool_calls": [
+                        {"function": {"name": tc.function.name, "arguments": tc.function.arguments}}
+                        for tc in tool_calls
+                    ],
+                })
+                for tc in tool_calls:
+                    logger.info("Tool call (stream) name=%s", tc.function.name)
+                    result = await self._run_tool(tc.function.name, tc.function.arguments)
+                    messages.append({"role": "tool", "content": result})
+
+        except LLMError:
+            raise
+        except Exception as exc:
+            raise LLMError(f"Ollama stream failed: {exc}") from exc
 
 
 def get_llm_provider(settings: "Settings") -> LLMProvider:  # type: ignore[name-defined]

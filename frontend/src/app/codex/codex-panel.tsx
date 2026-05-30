@@ -4,10 +4,9 @@ import { Send, Terminal } from "lucide-react";
 import type { FormEvent } from "react";
 import { useState } from "react";
 
-import { AiLoader } from "@/components/ai-loader";
 import { Button } from "@/components/ui/button";
 import type { LLMStatus } from "@/lib/api";
-import { askCodex } from "@/lib/api";
+import { streamCodexAsk } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 export function CodexPanel({ status }: { status: LLMStatus }) {
@@ -36,12 +35,19 @@ export function CodexPanel({ status }: { status: LLMStatus }) {
     setWarnings([]);
 
     try {
-      const response = await askCodex(trimmedQuestion, mode, context.trim(), trimmedUrl);
-      setAnswer(response.answer || "Codex CLI returned an empty response.");
-      setContextSource(response.context_source);
-      setWarnings(response.warnings);
+      await streamCodexAsk(
+        trimmedQuestion,
+        mode,
+        context.trim(),
+        trimmedUrl,
+        (chunk) => setAnswer((prev) => prev + chunk),
+        (contextSource, warnings) => {
+          setContextSource(contextSource);
+          setWarnings(warnings);
+        },
+      );
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "Codex bridge failed");
+      setError(requestError instanceof Error ? requestError.message : "LLM request failed");
     } finally {
       setIsPending(false);
     }
@@ -49,7 +55,6 @@ export function CodexPanel({ status }: { status: LLMStatus }) {
 
   return (
     <>
-      <AiLoader isLoading={isPending} timeoutSeconds={status.timeout_seconds} />
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
       <form className="flex flex-col gap-4" onSubmit={submitQuestion}>
         <fieldset className="flex flex-col gap-2">
@@ -122,7 +127,7 @@ export function CodexPanel({ status }: { status: LLMStatus }) {
             type="submit"
           >
             <Send data-icon="inline-start" />
-            {isPending ? "Asking" : mode === "url" ? "Scrape and ask" : "Ask Codex"}
+            {isPending ? "Thinking..." : mode === "url" ? "Scrape and ask" : "Ask"}
           </Button>
           {isPending ? (
             <span className="text-sm text-muted-foreground">CLI is running...</span>
@@ -153,7 +158,7 @@ export function CodexPanel({ status }: { status: LLMStatus }) {
         <section className="lg:col-span-2">
           <div className="rounded-lg border bg-card p-5">
             <h2 className="text-base font-semibold tracking-normal">
-              {error ? "Error" : "Codex response"}
+              {error ? "Error" : "Response"}
             </h2>
             <pre className="mt-4 max-h-[32rem] overflow-auto whitespace-pre-wrap break-words rounded-md bg-muted p-4 text-sm">
               {error || answer}

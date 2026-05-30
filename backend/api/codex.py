@@ -1,7 +1,9 @@
+import json
 import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from backend.config import Settings, get_settings
@@ -14,7 +16,12 @@ from backend.schemas import (
     CoverLetterResponse,
     LLMStatusResponse,
 )
-from backend.services.codex_bridge import CodexBridgeError, ask_codex
+from backend.services.codex_bridge import (
+    CodexBridgeError,
+    ask_codex,
+    resolve_codex_context,
+    stream_codex,
+)
 from backend.services.prompts import get_prompt_content
 
 router = APIRouter(prefix="/api/codex", tags=["codex"])
@@ -42,6 +49,31 @@ async def codex_ask(
     except CodexBridgeError as exc:
         logger.exception("LLM bridge request failed")
         raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
+@router.post("/ask/stream")
+async def codex_ask_stream(
+    request: CodexAskRequest,
+    settings: Annotated[Settings, Depends(get_settings)],
+    session: Annotated[Session, Depends(get_session)],
+) -> StreamingResponse:
+    try:
+        context = await resolve_codex_context(settings, request)
+    except CodexBridgeError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    async def generate():
+        try:
+            async for chunk in stream_codex(settings, request, session):
+                yield f"data: {json.dumps({'content': chunk})}\n\n"
+            yield f"data: {json.dumps({'done': True, 'context_source': context.source, 'warnings': context.warnings})}\n\n"
+        except CodexBridgeError as exc:
+            yield f"data: {json.dumps({'error': str(exc)})}\n\n"
+        except Exception as exc:
+            logger.exception("Stream failed")
+            yield f"data: {json.dumps({'error': str(exc)})}\n\n"
+
+    return StreamingResponse(generate(), media_type="text/event-stream")
 
 
 def _build_cover_letter_prompt(template: str, request: CoverLetterRequest) -> str:
