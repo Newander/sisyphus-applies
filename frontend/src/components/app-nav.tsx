@@ -9,7 +9,7 @@ const navItems = [
   { href: "/applications", label: "Applications", key: "applications" },
   { href: "/documents", label: "Documents", key: "documents" },
   { href: "/features", label: "Features", key: "features" },
-  { href: "/codex", label: "Codex", key: "codex" },
+  { href: "/codex", label: "Oracle", key: "codex" },
   { href: "/prompts", label: "Prompts", key: "prompts" },
 ];
 

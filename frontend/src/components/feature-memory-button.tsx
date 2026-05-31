@@ -116,7 +116,7 @@ export function FeatureMemoryButton() {
         onClick={() => setIsOpen(true)}
       >
         <BookmarkPlus data-icon="inline-start" />
-        Remember
+        Carve it in
       </Button>
 
       {isOpen ? (
@@ -155,7 +155,7 @@ export function FeatureMemoryButton() {
             </Button>
             <Button disabled={isSubmitting} type="submit">
               <Send data-icon="inline-start" />
-              {isSubmitting ? "Saving..." : "Submit"}
+              {isSubmitting ? "Carving..." : "Carve it in"}
             </Button>
           </div>
         </form>

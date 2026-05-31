@@ -177,7 +177,7 @@ export default function FeaturesPage() {
                   </Button>
                   <Button
                     size="icon"
-                    title="Close"
+                    title="Let it roll"
                     type="button"
                     variant="destructive"
                     onClick={() => void closeFeature(feature)}

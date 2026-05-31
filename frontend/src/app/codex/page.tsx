@@ -13,16 +13,16 @@ export default async function CodexPage() {
         <header className="flex flex-col gap-4 rounded-lg border-l-4 border-primary bg-muted p-5">
           <AppNav active="codex" />
           <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-muted-foreground">Local integration</p>
-            <h1 className="text-3xl font-semibold tracking-normal">Codex bridge</h1>
+            <p className="text-sm font-medium text-muted-foreground">Ask, and it shall answer</p>
+            <h1 className="text-3xl font-semibold tracking-normal">The Oracle</h1>
           </div>
         </header>
 
         <Card>
           <CardHeader>
-            <CardTitle>Ask Codex CLI</CardTitle>
+            <CardTitle>Ask the Oracle</CardTitle>
             <CardDescription>
-              The backend launches the local Codex CLI from the project root and returns stdout.
+              Pose your question. The Oracle consults the local LLM and speaks its answer.
             </CardDescription>
           </CardHeader>
           <CardContent>

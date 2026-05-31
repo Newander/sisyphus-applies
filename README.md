@@ -1,8 +1,20 @@
 # Sisyphus Applies
 
-A local-first, single-user job search tracker with an embedded AI assistant powered by a local LLM. No cloud, no API keys, no data leaving your machine.
+A local-first, single-user job search tracker with an embedded AI assistant. Runs fully offline with a local Ollama model, or connects to a more capable cloud agent (Codex / ChatGPT) when you need it — your choice.
 
-Built as a portfolio project demonstrating a full-stack AI application with RAG, streaming inference, and tool use — all running entirely offline.
+Built during a job search, for a job search — and as a demonstration of what I can put together when left to my own devices with AI.
+
+---
+
+## Why "Sisyphus"
+
+In Greek myth, Sisyphus is condemned to roll a boulder up a hill for eternity — only to watch it tumble back down, and begin again.
+
+Job searching feels exactly like that. You craft the resume, tailor the cover letter, submit the application. You wait. You hear nothing, or you hear *no*. You start over. The boulder never stays at the top.
+
+This app does not fix that. It just gives Sisyphus a clipboard.
+
+It tracks every company you've researched, every application you've sent, every status change, every document — so that the repetition at least has a record. The AI assistant helps you analyze job postings, research companies, and write cover letters. The boulder still rolls back down. But now you know exactly how many times you've pushed it.
 
 ---
 
@@ -13,13 +25,16 @@ Built as a portfolio project demonstrating a full-stack AI application with RAG,
 - Document storage — attach CVs and cover letters to applications
 - Dashboard with application timeline, stats, and recent activity
 
-**Local AI assistant**
+**The Oracle** (AI assistant, `/oracle` tab)
 - Ask questions about job postings — paste text or give a URL to scrape
 - Answers draw on your own stored data via **RAG** (Retrieval-Augmented Generation)
 - **Web search** via tool use (DuckDuckGo) for live company research
 - **Streaming responses** — text appears token-by-token via SSE
 - **Cover letter generation** from application data
-- Provider abstraction — swap between local Ollama and Codex CLI via one env var
+- **Provider abstraction** — `ollama` for fully local inference, `codex` for Codex CLI (requires ChatGPT subscription); any other CLI agent that reads stdin and writes stdout can be wired in via the same interface
+
+**Developer tooling**
+- **Feature memory** — a "Carve it in" button floats on every page; clicking it lets you describe a feature idea and captures a full-page screenshot, saved to the database. The `/features` tab lists all open entries. "Let it roll" archives an entry once shipped. Exists so that when working with an AI on a new task, you can hand it a screenshot + description of the current state and skip the "explain the UI from scratch" step.
 
 **AI infrastructure**
 - Embeddings with `nomic-embed-text` stored in **pgvector**
@@ -31,28 +46,27 @@ Built as a portfolio project demonstrating a full-stack AI application with RAG,
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                     Browser (9001)                       │
-│              Next.js 15 · React 19 · shadcn/ui           │
-└───────────────────────┬─────────────────────────────────┘
-                        │ HTTP / SSE
-┌───────────────────────▼─────────────────────────────────┐
-│                   Backend (9002)                          │
-│              FastAPI · SQLAlchemy 2 · psycopg3            │
-│                                                          │
-│  ┌─────────────┐  ┌──────────────┐  ┌────────────────┐  │
-│  │  REST API   │  │  RAG service │  │  LLM provider  │  │
-│  │ /api/...    │  │  pgvector    │  │  abstraction   │  │
-│  └─────────────┘  └──────┬───────┘  └───────┬────────┘  │
-└─────────────────────────┼───────────────────┼───────────┘
-                          │                   │
-              ┌───────────▼───┐     ┌─────────▼──────────┐
-              │  PostgreSQL   │     │   Ollama (11434)    │
-              │  + pgvector   │     │  qwen2.5:7b         │
-              │  sisyphus_    │     │  nomic-embed-text   │
-              │  applies      │     │  + web search tool  │
-              └───────────────┘     └────────────────────┘
+```mermaid
+graph TD
+    FE["Frontend :9001\nNext.js 15 · React 19 · shadcn/ui"]
+
+    subgraph BE["Backend :9002 — FastAPI · SQLAlchemy 2 · psycopg3"]
+        API["REST API\n/api/..."]
+        RAG["RAG service\npgvector"]
+        LLM["LLM provider\nabstraction"]
+    end
+
+    subgraph WK["Worker — APScheduler"]
+        JOBS["background jobs"]
+    end
+
+    DB[("PostgreSQL + pgvector\nsisyphus_applies")]
+    OL["Ollama :11434\nqwen2.5:7b · nomic-embed-text\nweb search tool"]
+
+    FE -->|"HTTP / SSE"| API
+    RAG --> DB
+    LLM --> OL
+    JOBS --> DB
 ```
 
 **Three processes run together:**
@@ -64,17 +78,17 @@ Built as a portfolio project demonstrating a full-stack AI application with RAG,
 
 ## Tech stack
 
-| Layer | Technology | Why |
-|---|---|---|
-| Frontend | Next.js 15, React 19, TypeScript | App Router, Server Components, type safety |
-| UI | Tailwind CSS, shadcn/ui | Consistent design system, no runtime CSS |
-| Backend | FastAPI, Python 3.12 | Async-first, automatic OpenAPI, type hints |
-| ORM | SQLAlchemy 2 + psycopg3 | Typed queries, async sessions, pgvector support |
-| Migrations | Alembic | Schema versioning, auto-generate from models |
-| Database | PostgreSQL + pgvector | Relational + vector search in one place |
-| LLM runtime | Ollama | Local model serving with tool use and streaming |
-| Embeddings | nomic-embed-text | 768-dim, fast, runs on CPU or GPU |
-| Web scraping | Playwright | JavaScript-rendered pages |
+| Layer        | Technology                       | Why                                             |
+|--------------|----------------------------------|-------------------------------------------------|
+| Frontend     | Next.js 15, React 19, TypeScript | App Router, Server Components, type safety      |
+| UI           | Tailwind CSS, shadcn/ui          | Consistent design system, no runtime CSS        |
+| Backend      | FastAPI, Python 3.12             | Async-first, automatic OpenAPI, type hints      |
+| ORM          | SQLAlchemy 2 + psycopg3          | Typed queries, async sessions, pgvector support |
+| Migrations   | Alembic                          | Schema versioning, auto-generate from models    |
+| Database     | PostgreSQL + pgvector            | Relational + vector search in one place         |
+| LLM runtime  | Ollama                           | Local model serving with tool use and streaming |
+| Embeddings   | nomic-embed-text                 | 768-dim, fast, runs on CPU or GPU               |
+| Web scraping | Playwright                       | JavaScript-rendered pages                       |
 
 ---
 
@@ -126,7 +140,8 @@ Opens at **http://localhost:9001**
 Key `.env` variables:
 
 ```dotenv
-# LLM provider: "ollama" (local) or "codex" (Codex CLI)
+# LLM provider: "ollama" (local, no account needed) or "codex" (Codex CLI, requires ChatGPT subscription)
+# Any CLI agent that reads a prompt from stdin and streams text to stdout can be added the same way.
 LLM_PROVIDER=ollama
 OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=qwen2.5:7b
