@@ -4,6 +4,8 @@ A local-first, single-user job search tracker with an embedded AI assistant. Run
 
 Built during a job search, for a job search — and as a demonstration of what I can put together when left to my own devices with AI.
 
+![Sisyphus Applies demo](docs/sisyphus-a-1.mp4)
+
 ---
 
 ## Why "Sisyphus"
